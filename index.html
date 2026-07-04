@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>اوج وین CRM</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0F1B2D">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0F1B2D;
+    --navy-2:#16273D;
+    --slate:#24405C;
+    --gold:#C9A227;
+    --gold-soft:#E4C868;
+    --off:#F5F3EE;
+    --off-2:#EDEAE1;
+    --ink:#0F1B2D;
+    --muted:#6B7686;
+    --green:#2F9E44;
+    --red:#D64545;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;height:100%;}
+  body{
+    font-family:'Vazirmatn',Tahoma,sans-serif;
+    background:var(--off);
+    color:var(--ink);
+    overscroll-behavior-y:none;
+  }
+  #app{display:flex;flex-direction:column;height:100vh;height:100dvh;}
+
+  @keyframes fadeUp{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;}}
+
+  header.top{
+    background:linear-gradient(135deg,var(--navy) 0%, var(--navy-2) 60%, var(--slate) 100%);
+    color:var(--off);
+    padding:18px 18px 22px;
+    position:relative;
+    overflow:hidden;
+    flex-shrink:0;
+  }
+  header.top svg.peaks{position:absolute;bottom:-2px;right:-10%;width:120%;opacity:.35;}
+  .brand{display:flex;align-items:center;gap:10px;position:relative;z-index:2;}
+  .brand-mark{width:34px;height:34px;border-radius:9px;background:var(--gold);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .brand-mark svg{width:20px;height:20px;}
+  .brand-text{font-weight:800;font-size:19px;letter-spacing:.2px;}
+  .brand-sub{font-size:11px;color:var(--gold-soft);font-weight:500;margin-top:1px;}
+  .page-title{margin-top:16px;font-size:22px;font-weight:800;position:relative;z-index:2;}
+  .page-sub{font-size:12.5px;color:#C8D2DE;margin-top:2px;position:relative;z-index:2;}
+  .menu-btn{position:absolute;top:18px;left:18px;width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.14);border:none;display:flex;align-items:center;justify-content:center;z-index:3;}
+  .menu-btn svg{width:18px;height:18px;stroke:#fff;}
+
+  main{flex:1;overflow-y:auto;padding:16px 14px 90px;}
+
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
+  .stat-card{background:#fff;border-radius:var(--radius);padding:14px;box-shadow:0 1px 3px rgba(15,27,45,.06);border:1px solid #EAE6DA;animation:fadeUp .25s ease both;}
+  .stat-num{font-size:22px;font-weight:800;color:var(--navy);}
+  .stat-label{font-size:12px;color:var(--muted);margin-top:3px;}
+  .stat-accent{width:26px;height:3px;border-radius:3px;background:var(--gold);margin-top:8px;}
+
+  .section-title{font-size:15px;font-weight:700;margin:6px 2px 10px;color:var(--navy);display:flex;align-items:center;justify-content:space-between;}
+  .section-title small{font-size:11.5px;color:var(--muted);font-weight:500;}
+
+  .info-note{background:#EFF3F7;border:1px solid #DCE4EC;border-radius:11px;padding:10px 12px;font-size:12px;color:var(--slate);margin-bottom:14px;line-height:1.9;}
+
+  .task-row{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #EAE6DA;border-radius:12px;padding:11px 12px;margin-bottom:8px;animation:fadeUp .25s ease both;}
+  .task-row.done{opacity:.5;}
+  .task-row.done .task-title{text-decoration:line-through;}
+  .checkbox{width:20px;height:20px;border-radius:50%;border:2px solid var(--gold);flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+  .checkbox.checked{background:var(--gold);}
+  .task-title{font-size:13.5px;font-weight:600;flex:1;}
+  .task-meta{font-size:11px;color:var(--muted);}
+  .chip{display:inline-block;font-size:10.5px;background:var(--off-2);color:var(--slate);border-radius:20px;padding:1px 8px;margin-inline-start:6px;font-weight:600;}
+
+  .empty{text-align:center;padding:36px 12px;color:var(--muted);}
+  .empty svg{width:46px;height:46px;opacity:.35;margin-bottom:10px;}
+  .empty p{font-size:13px;margin:0;}
+
+  .contact-card{background:#fff;border:1px solid #EAE6DA;border-radius:12px;padding:12px;display:flex;align-items:center;gap:12px;margin-bottom:9px;animation:fadeUp .25s ease both;}
+  .avatar{width:42px;height:42px;border-radius:50%;background:var(--slate);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;flex-shrink:0;}
+  .avatar.gold{background:var(--gold);color:var(--navy);}
+  .contact-info{flex:1;min-width:0;}
+  .contact-name{font-size:14px;font-weight:700;}
+  .contact-sub{font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .icon-btn{width:34px;height:34px;border-radius:9px;background:var(--off-2);display:flex;align-items:center;justify-content:center;border:none;flex-shrink:0;}
+  .icon-btn svg{width:16px;height:16px;stroke:var(--slate);}
+
+  .search-bar{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #EAE6DA;border-radius:12px;padding:9px 12px;margin-bottom:14px;}
+  .search-bar input{border:none;outline:none;background:transparent;font-family:inherit;font-size:13.5px;flex:1;color:var(--ink);}
+  .search-bar svg{width:16px;height:16px;stroke:var(--muted);flex-shrink:0;}
+
+  .pipeline{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;margin:0 -14px;padding-inline:14px;}
+  .stage{min-width:230px;background:#EFECE3;border-radius:14px;padding:10px;flex-shrink:0;}
+  .stage-head{display:flex;justify-content:space-between;align-items:center;padding:4px 4px 10px;}
+  .stage-name{font-size:13px;font-weight:700;color:var(--navy);}
+  .stage-count{font-size:11px;background:#fff;border-radius:20px;padding:2px 8px;color:var(--muted);font-weight:600;}
+  .deal-card{background:#fff;border-radius:11px;padding:11px;margin-bottom:8px;border:1px solid #E6E1D3;box-shadow:0 1px 2px rgba(15,27,45,.04);}
+  .deal-title{font-size:13px;font-weight:700;margin-bottom:4px;}
+  .deal-value{font-size:12.5px;color:var(--gold);font-weight:700;}
+  .deal-contact{font-size:11px;color:var(--muted);margin-top:4px;}
+  .deal-actions{display:flex;gap:6px;margin-top:9px;}
+  .deal-move{flex:1;font-size:11px;padding:6px 4px;border-radius:8px;border:1px solid #E6E1D3;background:var(--off);color:var(--slate);font-family:inherit;font-weight:600;}
+  .deal-move:active{background:var(--slate);color:#fff;}
+
+  canvas{width:100%;display:block;background:#fff;border-radius:14px;border:1px solid #EAE6DA;padding:8px;}
+
+  .backup-card{background:#fff;border:1px solid #EAE6DA;border-radius:14px;padding:16px;margin-bottom:14px;}
+  .backup-card h4{margin:0 0 6px;font-size:14px;color:var(--navy);}
+  .backup-card p{margin:0 0 12px;font-size:12px;color:var(--muted);line-height:1.9;}
+  .file-input-label{display:block;text-align:center;padding:12px;border:1.5px dashed #D8D2C2;border-radius:11px;font-size:12.5px;color:var(--slate);font-weight:600;}
+
+  .fab{position:fixed;bottom:82px;left:18px;width:54px;height:54px;border-radius:50%;background:var(--gold);box-shadow:0 6px 16px rgba(201,162,39,.4);display:flex;align-items:center;justify-content:center;border:none;z-index:20;}
+  .fab svg{width:24px;height:24px;stroke:var(--navy);}
+
+  nav.bottom{position:fixed;bottom:0;right:0;left:0;background:#fff;border-top:1px solid #EAE6DA;display:flex;padding:6px 4px calc(6px + env(safe-area-inset-bottom));z-index:15;}
+  nav.bottom button{flex:1;background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;font-family:inherit;color:var(--muted);}
+  nav.bottom button svg{width:21px;height:21px;stroke:var(--muted);}
+  nav.bottom button span{font-size:10.5px;font-weight:600;}
+  nav.bottom button.active{color:var(--navy);}
+  nav.bottom button.active svg{stroke:var(--gold);}
+
+  .overlay{position:fixed;inset:0;background:rgba(15,27,45,.55);display:none;align-items:flex-end;z-index:50;}
+  .overlay.open{display:flex;}
+  .sheet{background:#fff;width:100%;border-radius:20px 20px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom));max-height:88vh;overflow-y:auto;}
+  .sheet-handle{width:38px;height:4px;background:#E2DED2;border-radius:4px;margin:0 auto 14px;}
+  .sheet h3{margin:0 0 14px;font-size:16px;font-weight:800;color:var(--navy);}
+  .field{margin-bottom:12px;}
+  .field label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:5px;}
+  .field input, .field select, .field textarea{width:100%;border:1px solid #E2DED2;border-radius:10px;padding:10px 12px;font-family:inherit;font-size:13.5px;background:var(--off);color:var(--ink);outline:none;}
+  .field textarea{resize:vertical;min-height:60px;}
+  .btn-row{display:flex;gap:10px;margin-top:16px;}
+  .btn{flex:1;padding:12px;border-radius:11px;border:none;font-family:inherit;font-weight:700;font-size:13.5px;}
+  .btn-primary{background:var(--navy);color:#fff;}
+  .btn-ghost{background:var(--off-2);color:var(--navy);}
+  .btn-danger{background:#FBEAEA;color:var(--red);}
+  .menu-item{display:flex;align-items:center;gap:12px;width:100%;padding:13px 6px;background:none;border:none;border-bottom:1px solid #F0EDE4;text-align:right;font-family:inherit;}
+  .menu-item:last-child{border-bottom:none;}
+  .menu-item svg{width:19px;height:19px;stroke:var(--slate);flex-shrink:0;}
+  .menu-item span{font-size:13.5px;font-weight:600;color:var(--ink);}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header class="top">
+    <svg class="peaks" viewBox="0 0 400 100" preserveAspectRatio="none"><polygon points="0,100 60,30 110,70 170,10 230,60 290,25 340,65 400,40 400,100" fill="#C9A227"/></svg>
+    <button class="menu-btn" id="menuBtn"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="1.4" fill="#fff" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="#fff" stroke="none"/><circle cx="12" cy="19" r="1.4" fill="#fff" stroke="none"/></svg></button>
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M2 20 L9 8 L13 14 L17 6 L22 20 Z" fill="#0F1B2D"/></svg>
+      </div>
+      <div>
+        <div class="brand-text">اوج وین CRM</div>
+        <div class="brand-sub">مدیریت مشتریان و فروش</div>
+      </div>
+    </div>
+    <div id="pageTitle">
+      <div class="page-title">داشبورد</div>
+      <div class="page-sub" id="pageSub">نگاهی سریع به وضعیت امروز</div>
+    </div>
+  </header>
+
+  <main id="main"></main>
+
+  <button class="fab" id="fabBtn"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+
+  <nav class="bottom">
+    <button data-tab="dashboard" class="active"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span>داشبورد</span></button>
+    <button data-tab="contacts"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg><span>مخاطبین</span></button>
+    <button data-tab="deals"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg><span>معاملات</span></button>
+    <button data-tab="tasks"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12l2.5 2.5L16 9"/></svg><span>وظایف</span></button>
+  </nav>
+</div>
+
+<div class="overlay" id="overlay"><div class="sheet" id="sheet"></div></div>
+
+<script>
+const STORE_KEY = 'ojwin_crm_data_v2';
+const STAGES = ['سرنخ','مذاکره','پیشنهاد قیمت','بسته شده - برد','بسته شده - باخت'];
+const STAGES_SHORT = ['سرنخ','مذاکره','پیشنهاد','برد','باخت'];
+
+function emptyData(){
+  return { contacts:[], deals:[], tasks:[], products:[], team:[], campaigns:[], calls:[] };
+}
+
+function monthsAgoISO(n){
+  const d = new Date();
+  d.setMonth(d.getMonth()-n);
+  return d.toISOString();
+}
+
+function loadData(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      return Object.assign(emptyData(), parsed);
+    }
+  }catch(e){}
+  return {
+    contacts: [
+      {id: uid(), name:'شرکت پارسیان تجارت', phone:'021-88451200', email:'info@parsiantejarat.ir', note:'مشتری کلیدی، پیگیری فصلی'},
+      {id: uid(), name:'مهندس رضا کیانی', phone:'0912-3456789', email:'r.kiani@example.com', note:'علاقه‌مند به بسته سازمانی'}
+    ],
+    deals: [
+      {id: uid(), title:'قرارداد نرم‌افزار حسابداری', value:45000000, stage:0, contact:'شرکت پارسیان تجارت', productId:null, assignee:null, createdAt: monthsAgoISO(0)},
+      {id: uid(), title:'تمدید اشتراک سالانه', value:12000000, stage:3, contact:'مهندس رضا کیانی', productId:null, assignee:null, createdAt: monthsAgoISO(1)},
+      {id: uid(), title:'بسته آموزش فروش', value:8000000, stage:3, contact:'شرکت پارسیان تجارت', productId:null, assignee:null, createdAt: monthsAgoISO(2)},
+      {id: uid(), title:'اشتراک پایه', value:5000000, stage:4, contact:'مهندس رضا کیانی', productId:null, assignee:null, createdAt: monthsAgoISO(3)}
+    ],
+    tasks: [
+      {id: uid(), title:'تماس پیگیری با پارسیان تجارت', due: todayISO(), time:'', done:false, assignee:null, notified:false},
+      {id: uid(), title:'ارسال پیش‌فاکتور برای رضا کیانی', due: todayISO(), time:'', done:false, assignee:null, notified:false}
+    ],
+    products: [
+      {id: uid(), name:'اشتراک سالانه پایه', price:12000000, description:'دسترسی کامل به امکانات پایه برای یک سال'},
+      {id: uid(), name:'بسته سازمانی', price:45000000, description:'مناسب تیم‌های فروش بزرگ با پشتیبانی اختصاصی'}
+    ],
+    team: [
+      {id: uid(), name:'سارا محمدی', role:'کارشناس فروش', phone:'0935-1112233'}
+    ],
+    campaigns: [
+      {id: uid(), name:'کمپین نوروزی اینستاگرام', channel:'اینستاگرام', budget:8000000, startDate: todayISO(), endDate: todayISO(), status:'در حال اجرا', notes:'تخفیف ۲۰٪ برای مشتریان جدید'}
+    ],
+    calls: []
+  };
+}
+function saveData(){ localStorage.setItem(STORE_KEY, JSON.stringify(data)); }
+function uid(){ return Math.random().toString(36).slice(2,10); }
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function fmtMoney(n){ return Number(n||0).toLocaleString('fa-IR') + ' تومان'; }
+function fmtDate(iso){
+  const d = new Date(iso);
+  return d.toLocaleDateString('fa-IR', {month:'short', day:'numeric'});
+}
+function fmtMonthShort(iso){
+  const d = new Date(iso);
+  return d.toLocaleDateString('fa-IR', {month:'short'});
+}
+function initials(name){ return (name||'؟').trim().slice(0,1); }
+
+let data = loadData();
+let currentTab = 'dashboard';
+
+const main = document.getElementById('main');
+const pageTitleEl = document.querySelector('.page-title');
+const pageSub = document.getElementById('pageSub');
+const overlay = document.getElementById('overlay');
+const sheet = document.getElementById('sheet');
+const fabBtn = document.getElementById('fabBtn');
+
+document.querySelectorAll('nav.bottom button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('nav.bottom button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentTab = btn.dataset.tab;
+    render();
+  });
+});
+fabBtn.addEventListener('click', ()=>{
+  if(currentTab==='contacts') openContactForm();
+  else if(currentTab==='deals') openDealForm();
+  else if(currentTab==='tasks') openTaskForm();
+  else if(currentTab==='products') openProductForm();
+  else if(currentTab==='team') openTeamForm();
+  else if(currentTab==='campaigns') openCampaignForm();
+  else if(currentTab==='calls') openCallForm();
+  else openTaskForm();
+});
+document.getElementById('menuBtn').addEventListener('click', openMoreMenu);
+overlay.addEventListener('click', (e)=>{ if(e.target===overlay) closeSheet(); });
+
+function closeSheet(){ overlay.classList.remove('open'); sheet.innerHTML=''; }
+function openSheet(html){ sheet.innerHTML = '<div class="sheet-handle"></div>' + html; overlay.classList.add('open'); }
+
+function openMoreMenu(){
+  openSheet(`
+    <h3>صفحات بیشتر</h3>
+    <button class="menu-item" data-go="reports"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 3v18h18M7 15l4-5 3 3 5-7"/></svg><span>گزارش و نمودار فروش</span></button>
+    <button class="menu-item" data-go="products"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 7L12 3 4 7v10l8 4 8-4V7z"/><path d="M4 7l8 4 8-4M12 11v10"/></svg><span>محصولات و خدمات</span></button>
+    <button class="menu-item" data-go="team"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6"/><circle cx="17" cy="8" r="2.6"/><path d="M15.5 14.2c2.7.5 4.5 2.7 4.5 5.8"/></svg><span>تیم و کارمندان</span></button>
+    <button class="menu-item" data-go="campaigns"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 11v2a2 2 0 002 2h1l2 5h2l-1.5-5H12l7 3V6l-7 3H6a2 2 0 00-2 2z"/><path d="M17 9v6"/></svg><span>کمپین‌های تبلیغاتی</span></button>
+    <button class="menu-item" data-go="calls"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 5c0 9 7 16 16 16l3-4-6-3-2 2c-2-1-4-3-5-5l2-2-3-6-4 1z"/></svg><span>ثبت تماس مشتری</span></button>
+    <button class="menu-item" data-go="backup"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg><span>پشتیبان‌گیری و بازیابی</span></button>
+  `);
+  sheet.querySelectorAll('[data-go]').forEach(b=> b.addEventListener('click', ()=>{
+    document.querySelectorAll('nav.bottom button').forEach(x=>x.classList.remove('active'));
+    currentTab = b.dataset.go;
+    closeSheet();
+    render();
+  }));
+}
+
+function render(){
+  const titles = {
+    dashboard:['داشبورد','نگاهی سریع به وضعیت امروز'],
+    contacts:['مخاطبین','فهرست مشتریان و مخاطبین شما'],
+    deals:['معاملات','پایپ‌لاین فروش شما'],
+    tasks:['وظایف','کارهای امروز و آینده'],
+    reports:['گزارش‌ها','روند فروش و عملکرد تیم'],
+    products:['محصولات و خدمات','فهرست چیزهایی که می‌فروشید'],
+    team:['تیم و کارمندان','اعضای تیم فروش شما'],
+    campaigns:['کمپین‌های تبلیغاتی','مدیریت کمپین‌های بازاریابی'],
+    calls:['ثبت تماس مشتری','لیست تماس‌های ثبت‌شده'],
+    backup:['پشتیبان‌گیری','خروجی، ورودی و پاک‌سازی اطلاعات']
+  };
+  pageTitleEl.textContent = titles[currentTab][0];
+  pageSub.textContent = titles[currentTab][1];
+
+  if(currentTab==='dashboard') renderDashboard();
+  else if(currentTab==='contacts') renderContacts();
+  else if(currentTab==='deals') renderDeals();
+  else if(currentTab==='tasks') renderTasks();
+  else if(currentTab==='reports') renderReports();
+  else if(currentTab==='products') renderProducts();
+  else if(currentTab==='team') renderTeam();
+  else if(currentTab==='campaigns') renderCampaigns();
+  else if(currentTab==='calls') renderCalls();
+  else if(currentTab==='backup') renderBackup();
+
+  updateFab();
+}
+
+function updateFab(){
+  fabBtn.style.display = (currentTab==='reports' || currentTab==='backup') ? 'none' : 'flex';
+}
+
+function emptyState(title, sub){
+  return `<div class="empty">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#6B7686" stroke-width="1.6"><path d="M9 12l2 2 4-4M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    <p><b>${title}</b></p><p>${sub}</p>
+  </div>`;
+}
+
+function renderDashboard(){
+  const openDeals = data.deals.filter(d=>d.stage<3);
+  const wonValue = data.deals.filter(d=>d.stage===3).reduce((s,d)=>s+Number(d.value),0);
+  const pipelineValue = openDeals.reduce((s,d)=>s+Number(d.value),0);
+  const todayTasks = data.tasks.filter(t=>!t.done);
+
+  main.innerHTML = `
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-num">${data.contacts.length}</div><div class="stat-label">مخاطب ثبت‌شده</div><div class="stat-accent"></div></div>
+      <div class="stat-card"><div class="stat-num">${openDeals.length}</div><div class="stat-label">معامله باز</div><div class="stat-accent"></div></div>
+      <div class="stat-card"><div class="stat-num">${fmtMoney(pipelineValue)}</div><div class="stat-label">ارزش پایپ‌لاین</div><div class="stat-accent"></div></div>
+      <div class="stat-card"><div class="stat-num">${fmtMoney(wonValue)}</div><div class="stat-label">معاملات موفق</div><div class="stat-accent"></div></div>
+    </div>
+    <div class="section-title">وظایف در انتظار <small>${todayTasks.length} مورد</small></div>
+    <div id="dashTasks"></div>
+  `;
+  const cont = document.getElementById('dashTasks');
+  if(todayTasks.length===0){
+    cont.innerHTML = emptyState('همه‌چیز مرتبه!','هیچ وظیفه بازی نداری.');
+  } else {
+    cont.innerHTML = todayTasks.slice(0,5).map(taskRowHTML).join('');
+    attachTaskHandlers(cont);
+  }
+}
+
+function renderContacts(){
+  main.innerHTML = `
+    <div class="search-bar">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+      <input id="contactSearch" placeholder="جستجوی مخاطب...">
+    </div>
+    <div id="contactList"></div>
+  `;
+  document.getElementById('contactSearch').addEventListener('input', (e)=> renderContactList(e.target.value));
+  renderContactList('');
+}
+function renderContactList(q){
+  const list = document.getElementById('contactList');
+  const filtered = data.contacts.filter(c=> c.name.includes(q) || (c.phone||'').includes(q));
+  if(filtered.length===0){ list.innerHTML = emptyState('مخاطبی یافت نشد','یک مخاطب جدید با دکمه + اضافه کن.'); return; }
+  list.innerHTML = filtered.map(c=>`
+    <div class="contact-card">
+      <div class="avatar">${initials(c.name)}</div>
+      <div class="contact-info">
+        <div class="contact-name">${c.name}</div>
+        <div class="contact-sub">${c.phone||''} ${c.email? '· '+c.email:''}</div>
+      </div>
+      <button class="icon-btn" data-edit="${c.id}"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
+    </div>
+  `).join('');
+  list.querySelectorAll('[data-edit]').forEach(b=> b.addEventListener('click', ()=> openContactForm(b.dataset.edit)));
+}
+
+function openContactForm(id){
+  const c = id ? data.contacts.find(x=>x.id===id) : null;
+  openSheet(`
+    <h3>${c? 'ویرایش مخاطب':'مخاطب جدید'}</h3>
+    <div class="field"><label>نام</label><input id="f_name" value="${c?c.name:''}" placeholder="نام شخص یا شرکت"></div>
+    <div class="field"><label>شماره تماس</label><input id="f_phone" value="${c?c.phone||'':''}" placeholder="0912xxxxxxx"></div>
+    <div class="field"><label>ایمیل</label><input id="f_email" value="${c?c.email||'':''}" placeholder="example@mail.com"></div>
+    <div class="field"><label>یادداشت</label><textarea id="f_note">${c?c.note||'':''}</textarea></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="saveContact">${c?'ذخیره تغییرات':'افزودن مخاطب'}</button>
+      ${c?'<button class="btn btn-danger" id="delContact">حذف</button>':''}
+    </div>
+  `);
+  document.getElementById('saveContact').addEventListener('click', ()=>{
+    const name = document.getElementById('f_name').value.trim();
+    if(!name) return;
+    const payload = {name, phone:document.getElementById('f_phone').value.trim(), email:document.getElementById('f_email').value.trim(), note:document.getElementById('f_note').value.trim()};
+    if(c){ Object.assign(c, payload); } else { data.contacts.push({id:uid(), ...payload}); }
+    saveData(); closeSheet(); render();
+  });
+  if(c){ document.getElementById('delContact').addEventListener('click', ()=>{
+    data.contacts = data.contacts.filter(x=>x.id!==c.id);
+    saveData(); closeSheet(); render();
+  });}
+}
+
+function renderDeals(){
+  main.innerHTML = `<div class="pipeline">${STAGES.map((s,i)=>{
+    const deals = data.deals.filter(d=>d.stage===i);
+    return `<div class="stage">
+      <div class="stage-head"><span class="stage-name">${s}</span><span class="stage-count">${deals.length}</span></div>
+      ${deals.map(d=>dealCardHTML(d,i)).join('') || '<div style="font-size:11px;color:var(--muted);text-align:center;padding:14px 0;">خالی</div>'}
+    </div>`;
+  }).join('')}</div>`;
+
+  main.querySelectorAll('[data-edit-deal]').forEach(b=> b.addEventListener('click', ()=> openDealForm(b.dataset.editDeal)));
+  main.querySelectorAll('[data-move]').forEach(b=> b.addEventListener('click', ()=>{
+    const deal = data.deals.find(x=>x.id===b.dataset.dealId);
+    deal.stage = Number(b.dataset.move);
+    saveData(); renderDeals();
+  }));
+}
+function dealCardHTML(d, stageIdx){
+  const canBack = stageIdx>0;
+  const canFwd = stageIdx<STAGES.length-1;
+  const assigneeName = d.assignee ? (data.team.find(t=>t.id===d.assignee)||{}).name : null;
+  return `<div class="deal-card">
+    <div class="deal-title">${d.title}</div>
+    <div class="deal-value">${fmtMoney(d.value)}</div>
+    ${d.contact? `<div class="deal-contact">${d.contact}</div>`:''}
+    ${assigneeName? `<div class="deal-contact">مسئول: ${assigneeName}</div>`:''}
+    <div class="deal-actions">
+      ${canBack? `<button class="deal-move" data-deal-id="${d.id}" data-move="${stageIdx-1}">◀ عقب</button>`:''}
+      <button class="deal-move" data-edit-deal="${d.id}">ویرایش</button>
+      ${canFwd? `<button class="deal-move" data-deal-id="${d.id}" data-move="${stageIdx+1}">جلو ▶</button>`:''}
+    </div>
+  </div>`;
+}
+
+function openDealForm(id){
+  const d = id ? data.deals.find(x=>x.id===id) : null;
+  const contactOptions = data.contacts.map(c=>`<option value="${c.name}" ${d&&d.contact===c.name?'selected':''}>${c.name}</option>`).join('');
+  const stageOptions = STAGES.map((s,i)=>`<option value="${i}" ${d&&d.stage===i?'selected':''}>${s}</option>`).join('');
+  const productOptions = data.products.map(p=>`<option value="${p.id}" ${d&&d.productId===p.id?'selected':''}>${p.name}</option>`).join('');
+  const teamOptions = data.team.map(t=>`<option value="${t.id}" ${d&&d.assignee===t.id?'selected':''}>${t.name}</option>`).join('');
+  openSheet(`
+    <h3>${d?'ویرایش معامله':'معامله جدید'}</h3>
+    <div class="field"><label>محصول یا خدمت (اختیاری)</label><select id="f_product"><option value="">— بدون محصول —</option>${productOptions}</select></div>
+    <div class="field"><label>عنوان معامله</label><input id="f_title" value="${d?d.title:''}" placeholder="مثلاً: قرارداد سالانه"></div>
+    <div class="field"><label>ارزش (تومان)</label><input id="f_value" type="number" value="${d?d.value:''}" placeholder="0"></div>
+    <div class="field"><label>مخاطب مرتبط</label><select id="f_contact"><option value="">— انتخاب کنید —</option>${contactOptions}</select></div>
+    <div class="field"><label>مسئول پیگیری (اختیاری)</label><select id="f_assignee"><option value="">— تعیین نشده —</option>${teamOptions}</select></div>
+    <div class="field"><label>مرحله</label><select id="f_stage">${stageOptions}</select></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="saveDeal">${d?'ذخیره تغییرات':'افزودن معامله'}</button>
+      ${d?'<button class="btn btn-danger" id="delDeal">حذف</button>':''}
+    </div>
+  `);
+  document.getElementById('f_product').addEventListener('change', (e)=>{
+    const p = data.products.find(x=>x.id===e.target.value);
+    if(p){
+      const titleField = document.getElementById('f_title');
+      const valueField = document.getElementById('f_value');
+      if(!titleField.value.trim()) titleField.value = p.name;
+      valueField.value = p.price;
+    }
+  });
+  document.getElementById('saveDeal').addEventListener('click', ()=>{
+    const title = document.getElementById('f_title').value.trim();
+    if(!title) return;
+    const payload = {
+      title,
+      value:Number(document.getElementById('f_value').value||0),
+      contact:document.getElementById('f_contact').value,
+      stage:Number(document.getElementById('f_stage').value),
+      productId: document.getElementById('f_product').value || null,
+      assignee: document.getElementById('f_assignee').value || null
+    };
+    if(d){ Object.assign(d, payload); } else { data.deals.push({id:uid(), createdAt:new Date().toISOString(), ...payload}); }
+    saveData(); closeSheet(); render();
+  });
+  if(d){ document.getElementById('delDeal').addEventListener('click', ()=>{
+    data.deals = data.deals.filter(x=>x.id!==d.id);
+    saveData(); closeSheet(); render();
+  });}
+}
+
+function renderTasks(){
+  const pending = data.tasks.filter(t=>!t.done).sort((a,b)=> a.due.localeCompare(b.due));
+  const done = data.tasks.filter(t=>t.done);
+  const permNote = ('Notification' in window && Notification.permission!=='granted')
+    ? `<div class="info-note">یادآوری وظایف با نوتیفیکیشن فقط وقتی کار می‌کند که این اپ باز باشد. <button id="enableNotif" style="background:none;border:none;color:var(--navy);font-weight:700;text-decoration:underline;font-family:inherit;padding:0;">فعال‌سازی یادآوری</button></div>`
+    : '';
+  main.innerHTML = `
+    ${permNote}
+    <div class="section-title">در انتظار انجام <small>${pending.length} مورد</small></div>
+    <div id="pendingTasks">${pending.length? pending.map(taskRowHTML).join(''): emptyState('کاری نمانده','یک وظیفه جدید اضافه کن.')}</div>
+    ${done.length? `<div class="section-title" style="margin-top:18px;">انجام‌شده <small>${done.length} مورد</small></div><div id="doneTasks">${done.map(taskRowHTML).join('')}</div>`:''}
+  `;
+  attachTaskHandlers(main);
+  const enableBtn = document.getElementById('enableNotif');
+  if(enableBtn){ enableBtn.addEventListener('click', ()=>{ Notification.requestPermission().then(()=>render()); }); }
+}
+function taskRowHTML(t){
+  const assigneeName = t.assignee ? (data.team.find(x=>x.id===t.assignee)||{}).name : null;
+  return `<div class="task-row ${t.done?'done':''}" data-task-id="${t.id}">
+    <div class="checkbox ${t.done?'checked':''}" data-check="${t.id}">
+      ${t.done? '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#fff" stroke-width="3"><path d="M5 12l4 4 10-10"/></svg>':''}
+    </div>
+    <div style="flex:1;">
+      <div class="task-title">${t.title}</div>
+      <div class="task-meta">${fmtDate(t.due)}${t.time? ' · '+t.time:''}${assigneeName? `<span class="chip">${assigneeName}</span>`:''}</div>
+    </div>
+  </div>`;
+}
+function attachTaskHandlers(scope){
+  scope.querySelectorAll('[data-check]').forEach(el=> el.addEventListener('click', ()=>{
+    const t = data.tasks.find(x=>x.id===el.dataset.check);
+    t.done = !t.done;
+    saveData(); render();
+  }));
+}
+function openTaskForm(){
+  const teamOptions = data.team.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
+  openSheet(`
+    <h3>وظیفه جدید</h3>
+    <div class="field"><label>عنوان</label><input id="f_ttitle" placeholder="مثلاً: تماس با مشتری"></div>
+    <div class="field"><label>تاریخ سررسید</label><input id="f_tdue" type="date" value="${todayISO()}"></div>
+    <div class="field"><label>ساعت یادآوری (اختیاری)</label><input id="f_ttime" type="time"></div>
+    <div class="field"><label>مسئول (اختیاری)</label><select id="f_tassignee"><option value="">— تعیین نشده —</option>${teamOptions}</select></div>
+    <div class="btn-row"><button class="btn btn-primary" id="saveTask">افزودن وظیفه</button></div>
+  `);
+  document.getElementById('saveTask').addEventListener('click', ()=>{
+    const title = document.getElementById('f_ttitle').value.trim();
+    if(!title) return;
+    data.tasks.push({
+      id:uid(), title,
+      due:document.getElementById('f_tdue').value||todayISO(),
+      time:document.getElementById('f_ttime').value||'',
+      assignee:document.getElementById('f_tassignee').value||null,
+      done:false, notified:false
+    });
+    saveData(); closeSheet(); render();
+  });
+}
+
+function renderProducts(){
+  main.innerHTML = `<div id="productList"></div>`;
+  const list = document.getElementById('productList');
+  if(data.products.length===0){ list.innerHTML = emptyState('هنوز محصولی نداری','با دکمه + یک محصول یا خدمت اضافه کن.'); return; }
+  list.innerHTML = data.products.map(p=>`
+    <div class="contact-card">
+      <div class="avatar gold">${initials(p.name)}</div>
+      <div class="contact-info">
+        <div class="contact-name">${p.name}</div>
+        <div class="contact-sub">${fmtMoney(p.price)}${p.description? ' · '+p.description:''}</div>
+      </div>
+      <button class="icon-btn" data-edit="${p.id}"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
+    </div>
+  `).join('');
+  list.querySelectorAll('[data-edit]').forEach(b=> b.addEventListener('click', ()=> openProductForm(b.dataset.edit)));
+}
+function openProductForm(id){
+  const p = id ? data.products.find(x=>x.id===id) : null;
+  openSheet(`
+    <h3>${p?'ویرایش محصول':'محصول یا خدمت جدید'}</h3>
+    <div class="field"><label>نام</label><input id="f_pname" value="${p?p.name:''}" placeholder="مثلاً: اشتراک سالانه"></div>
+    <div class="field"><label>قیمت (تومان)</label><input id="f_pprice" type="number" value="${p?p.price:''}" placeholder="0"></div>
+    <div class="field"><label>توضیحات</label><textarea id="f_pdesc">${p?p.description||'':''}</textarea></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="saveProduct">${p?'ذخیره تغییرات':'افزودن محصول'}</button>
+      ${p?'<button class="btn btn-danger" id="delProduct">حذف</button>':''}
+    </div>
+  `);
+  document.getElementById('saveProduct').addEventListener('click', ()=>{
+    const name = document.getElementById('f_pname').value.trim();
+    if(!name) return;
+    const payload = {name, price:Number(document.getElementById('f_pprice').value||0), description:document.getElementById('f_pdesc').value.trim()};
+    if(p){ Object.assign(p, payload); } else { data.products.push({id:uid(), ...payload}); }
+    saveData(); closeSheet(); render();
+  });
+  if(p){ document.getElementById('delProduct').addEventListener('click', ()=>{
+    data.products = data.products.filter(x=>x.id!==p.id);
+    saveData(); closeSheet(); render();
+  });}
+}
+
+function renderTeam(){
+  main.innerHTML = `
+    <div class="info-note">این بخش برای دسته‌بندی و ارجاع کارها بین اعضای تیم است. چون اپ روی مرورگر همین گوشی ذخیره می‌شود، برای اشتراک بین چند نفر باید از فایل پشتیبان (بخش پشتیبان‌گیری) استفاده کنید.</div>
+    <div id="teamList"></div>
+  `;
+  const list = document.getElementById('teamList');
+  if(data.team.length===0){ list.innerHTML = emptyState('هنوز عضوی اضافه نشده','با دکمه + یک عضو تیم اضافه کن.'); return; }
+  list.innerHTML = data.team.map(t=>`
+    <div class="contact-card">
+      <div class="avatar">${initials(t.name)}</div>
+      <div class="contact-info">
+        <div class="contact-name">${t.name}</div>
+        <div class="contact-sub">${t.role||''}${t.phone? ' · '+t.phone:''}</div>
+      </div>
+      <button class="icon-btn" data-edit="${t.id}"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
+    </div>
+  `).join('');
+  list.querySelectorAll('[data-edit]').forEach(b=> b.addEventListener('click', ()=> openTeamForm(b.dataset.edit)));
+}
+function openTeamForm(id){
+  const t = id ? data.team.find(x=>x.id===id) : null;
+  openSheet(`
+    <h3>${t?'ویرایش عضو تیم':'عضو جدید تیم'}</h3>
+    <div class="field"><label>نام</label><input id="f_mname" value="${t?t.name:''}" placeholder="نام و نام‌خانوادگی"></div>
+    <div class="field"><label>سمت</label><input id="f_mrole" value="${t?t.role||'':''}" placeholder="مثلاً: کارشناس فروش"></div>
+    <div class="field"><label>شماره تماس</label><input id="f_mphone" value="${t?t.phone||'':''}" placeholder="0912xxxxxxx"></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="saveMember">${t?'ذخیره تغییرات':'افزودن عضو'}</button>
+      ${t?'<button class="btn btn-danger" id="delMember">حذف</button>':''}
+    </div>
+  `);
+  document.getElementById('saveMember').addEventListener('click', ()=>{
+    const name = document.getElementById('f_mname').value.trim();
+    if(!name) return;
+    const payload = {name, role:document.getElementById('f_mrole').value.trim(), phone:document.getElementById('f_mphone').value.trim()};
+    if(t){ Object.assign(t, payload); } else { data.team.push({id:uid(), ...payload}); }
+    saveData(); closeSheet(); render();
+  });
+  if(t){ document.getElementById('delMember').addEventListener('click', ()=>{
+    data.team = data.team.filter(x=>x.id!==t.id);
+    saveData(); closeSheet(); render();
+  });}
+}
+
+function renderCampaigns(){
+  main.innerHTML = `<div id="campaignList"></div>`;
+  const list = document.getElementById('campaignList');
+  if(data.campaigns.length===0){ list.innerHTML = emptyState('هنوز کمپینی نداری','با دکمه + یک کمپین تبلیغاتی اضافه کن.'); return; }
+  list.innerHTML = data.campaigns.map(c=>{
+    const statusColor = c.status==='در حال اجرا' ? 'var(--green)' : (c.status==='پایان‌یافته' ? 'var(--muted)' : 'var(--gold)');
+    return `
+    <div class="contact-card" style="align-items:flex-start;">
+      <div class="avatar gold">${initials(c.name)}</div>
+      <div class="contact-info">
+        <div class="contact-name">${c.name}</div>
+        <div class="contact-sub">${c.channel} · بودجه: ${fmtMoney(c.budget)}</div>
+        <div class="contact-sub" style="color:${statusColor};font-weight:700;">${c.status}</div>
+        ${c.notes? `<div class="contact-sub">${c.notes}</div>`:''}
+      </div>
+      <button class="icon-btn" data-edit="${c.id}"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
+    </div>`;
+  }).join('');
+  list.querySelectorAll('[data-edit]').forEach(b=> b.addEventListener('click', ()=> openCampaignForm(b.dataset.edit)));
+}
+function openCampaignForm(id){
+  const c = id ? data.campaigns.find(x=>x.id===id) : null;
+  const statuses = ['برنامه‌ریزی‌شده','در حال اجرا','پایان‌یافته'];
+  const statusOptions = statuses.map(s=>`<option value="${s}" ${c&&c.status===s?'selected':''}>${s}</option>`).join('');
+  openSheet(`
+    <h3>${c?'ویرایش کمپین':'کمپین تبلیغاتی جدید'}</h3>
+    <div class="field"><label>نام کمپین</label><input id="f_cname" value="${c?c.name:''}" placeholder="مثلاً: کمپین نوروزی"></div>
+    <div class="field"><label>کانال تبلیغاتی</label><input id="f_cchannel" value="${c?c.channel||'':''}" placeholder="اینستاگرام، پیامک، گوگل ادز و..."></div>
+    <div class="field"><label>بودجه (تومان)</label><input id="f_cbudget" type="number" value="${c?c.budget:''}" placeholder="0"></div>
+    <div class="field"><label>تاریخ شروع</label><input id="f_cstart" type="date" value="${c?c.startDate:todayISO()}"></div>
+    <div class="field"><label>تاریخ پایان</label><input id="f_cend" type="date" value="${c?c.endDate:todayISO()}"></div>
+    <div class="field"><label>وضعیت</label><select id="f_cstatus">${statusOptions}</select></div>
+    <div class="field"><label>توضیحات</label><textarea id="f_cnotes">${c?c.notes||'':''}</textarea></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="saveCampaign">${c?'ذخیره تغییرات':'افزودن کمپین'}</button>
+      ${c?'<button class="btn btn-danger" id="delCampaign">حذف</button>':''}
+    </div>
+  `);
+  document.getElementById('saveCampaign').addEventListener('click', ()=>{
+    const name = document.getElementById('f_cname').value.trim();
+    if(!name) return;
+    const payload = {
+      name,
+      channel: document.getElementById('f_cchannel').value.trim(),
+      budget: Number(document.getElementById('f_cbudget').value||0),
+      startDate: document.getElementById('f_cstart').value,
+      endDate: document.getElementById('f_cend').value,
+      status: document.getElementById('f_cstatus').value,
+      notes: document.getElementById('f_cnotes').value.trim()
+    };
+    if(c){ Object.assign(c, payload); } else { data.campaigns.push({id:uid(), ...payload}); }
+    saveData(); closeSheet(); render();
+  });
+  if(c){ document.getElementById('delCampaign').addEventListener('click', ()=>{
+    data.campaigns = data.campaigns.filter(x=>x.id!==c.id);
+    saveData(); closeSheet(); render();
+  });}
+}
+
+function renderCalls(){
+  const sorted = [...data.calls].sort((a,b)=> (b.datetime||'').localeCompare(a.datetime||''));
+  main.innerHTML = `
+    <div class="info-note">مرورگرها به دلایل امنیتی اجازه دسترسی به تماس‌های واقعی گوشی یا نمایش خودکار پاپ‌آپ بعد از قطع تماس را نمی‌دهند؛ این یک محدودیت سیستم‌عامل اندروید برای اپ‌های وب است، نه محدودیت این برنامه. راه‌حل: بعد از هر تماس، با دکمه + همینجا در چند ثانیه اطلاعات تماس را ثبت کن. برای دسترسی سریع، می‌توانی آیکون این اپ را به نزدیک صفحه تماس گوشی‌ات پین کنی.</div>
+    <div id="callList"></div>
+  `;
+  const list = document.getElementById('callList');
+  if(sorted.length===0){ list.innerHTML = emptyState('هنوز تماسی ثبت نشده','با دکمه + یک تماس جدید ثبت کن.'); return; }
+  list.innerHTML = sorted.map(c=>`
+    <div class="contact-card" style="align-items:flex-start;">
+      <div class="avatar">${initials(c.name||c.phone)}</div>
+      <div class="contact-info">
+        <div class="contact-name">${c.name||'مشتری ناشناس'} <span class="chip">${c.phone||''}</span></div>
+        <div class="contact-sub">${c.address||''}</div>
+        <div class="contact-sub">${c.orderType? 'نوع سفارش: '+c.orderType:''}</div>
+        <div class="contact-sub">${c.datetime? new Date(c.datetime).toLocaleString('fa-IR'):''}</div>
+      </div>
+      <button class="icon-btn" data-edit="${c.id}"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
+    </div>
+  `).join('');
+  list.querySelectorAll('[data-edit]').forEach(b=> b.addEventListener('click', ()=> openCallForm(b.dataset.edit)));
+}
+function nowLocalISO(){
+  const d = new Date();
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+  return d.toISOString().slice(0,16);
+}
+function openCallForm(id){
+  const c = id ? data.calls.find(x=>x.id===id) : null;
+  openSheet(`
+    <h3>${c?'ویرایش تماس':'ثبت تماس مشتری'}</h3>
+    <div class="field"><label>شماره تماس</label><input id="f_kphone" value="${c?c.phone||'':''}" placeholder="0912xxxxxxx"></div>
+    <div class="field"><label>نام مشتری</label><input id="f_kname" value="${c?c.name||'':''}" placeholder="نام مشتری"></div>
+    <div class="field"><label>آدرس</label><textarea id="f_kaddress">${c?c.address||'':''}</textarea></div>
+    <div class="field"><label>نوع سفارش</label><input id="f_korder" value="${c?c.orderType||'':''}" placeholder="مثلاً: سفارش تلفنی محصول X"></div>
+    <div class="field"><label>زمان تماس</label><input id="f_kdatetime" type="datetime-local" value="${c?(c.datetime||nowLocalISO()):nowLocalISO()}"></div>
+    <div class="field"><label>توضیحات</label><textarea id="f_knotes">${c?c.notes||'':''}</textarea></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="saveCall">${c?'ذخیره تغییرات':'ثبت تماس'}</button>
+      ${c?'<button class="btn btn-danger" id="delCall">حذف</button>':''}
+    </div>
+    ${!c? '<div class="btn-row"><button class="btn btn-ghost" id="saveCallAsContact">ثبت و افزودن به مخاطبین</button></div>':''}
+  `);
+  function collectPayload(){
+    return {
+      phone: document.getElementById('f_kphone').value.trim(),
+      name: document.getElementById('f_kname').value.trim(),
+      address: document.getElementById('f_kaddress').value.trim(),
+      orderType: document.getElementById('f_korder').value.trim(),
+      datetime: document.getElementById('f_kdatetime').value,
+      notes: document.getElementById('f_knotes').value.trim()
+    };
+  }
+  document.getElementById('saveCall').addEventListener('click', ()=>{
+    const payload = collectPayload();
+    if(!payload.phone && !payload.name) return;
+    if(c){ Object.assign(c, payload); } else { data.calls.push({id:uid(), ...payload}); }
+    saveData(); closeSheet(); render();
+  });
+  const asContactBtn = document.getElementById('saveCallAsContact');
+  if(asContactBtn){ asContactBtn.addEventListener('click', ()=>{
+    const payload = collectPayload();
+    if(!payload.phone && !payload.name) return;
+    data.calls.push({id:uid(), ...payload});
+    data.contacts.push({id:uid(), name: payload.name||payload.phone, phone: payload.phone, email:'', note: [payload.address, payload.orderType].filter(Boolean).join(' · ')});
+    saveData(); closeSheet(); render();
+  });}
+  if(c){ document.getElementById('delCall').addEventListener('click', ()=>{
+    data.calls = data.calls.filter(x=>x.id!==c.id);
+    saveData(); closeSheet(); render();
+  });}
+}
+
+function renderReports(){
+  const wonDeals = data.deals.filter(d=>d.stage===3);
+  const lostDeals = data.deals.filter(d=>d.stage===4);
+  const totalWon = wonDeals.reduce((s,d)=>s+Number(d.value),0);
+  const totalLost = lostDeals.reduce((s,d)=>s+Number(d.value),0);
+  const convRate = (wonDeals.length+lostDeals.length)>0 ? Math.round(wonDeals.length/(wonDeals.length+lostDeals.length)*100) : 0;
+  const avgDeal = data.deals.length ? Math.round(data.deals.reduce((s,d)=>s+Number(d.value),0)/data.deals.length) : 0;
+
+  main.innerHTML = `
+    <div class="section-title">فروش موفق در ۶ ماه اخیر</div>
+    <canvas id="lineChart" height="150"></canvas>
+    <div class="section-title" style="margin-top:20px;">تعداد معاملات بر اساس مرحله</div>
+    <canvas id="barChart" height="170"></canvas>
+    <div class="section-title" style="margin-top:20px;">خلاصه عملکرد</div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-num">${fmtMoney(totalWon)}</div><div class="stat-label">مجموع فروش موفق</div><div class="stat-accent"></div></div>
+      <div class="stat-card"><div class="stat-num">${fmtMoney(totalLost)}</div><div class="stat-label">مجموع معاملات ازدست‌رفته</div><div class="stat-accent"></div></div>
+      <div class="stat-card"><div class="stat-num">${convRate}%</div><div class="stat-label">نرخ برد</div><div class="stat-accent"></div></div>
+      <div class="stat-card"><div class="stat-num">${fmtMoney(avgDeal)}</div><div class="stat-label">میانگین ارزش معامله</div><div class="stat-accent"></div></div>
+    </div>
+  `;
+
+  const months = [];
+  for(let i=5;i>=0;i--){ const d=new Date(); d.setMonth(d.getMonth()-i); months.push(d); }
+  const monthLabels = months.map(d=>fmtMonthShort(d.toISOString()));
+  const monthValues = months.map(md=>{
+    return wonDeals.filter(d=>{
+      const dd = new Date(d.createdAt||Date.now());
+      return dd.getFullYear()===md.getFullYear() && dd.getMonth()===md.getMonth();
+    }).reduce((s,d)=>s+Number(d.value),0);
+  });
+  drawLineChart('lineChart', monthLabels, monthValues, '#C9A227');
+
+  const stageCounts = STAGES.map((s,i)=> data.deals.filter(d=>d.stage===i).length);
+  drawBarChart('barChart', STAGES_SHORT, stageCounts, '#24405C');
+}
+
+function setupCanvas(id, cssHeight){
+  const canvas = document.getElementById(id);
+  const dpr = window.devicePixelRatio || 1;
+  const cssWidth = canvas.parentElement.clientWidth - 18;
+  canvas.width = cssWidth*dpr; canvas.height = cssHeight*dpr;
+  canvas.style.width = cssWidth+'px'; canvas.style.height = cssHeight+'px';
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,cssWidth,cssHeight);
+  return {ctx, w:cssWidth, h:cssHeight};
+}
+function roundRectFill(ctx,x,y,w,h,r){
+  if(h<=0.5) return;
+  r = Math.min(r, w/2, h/2);
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);
+  ctx.arcTo(x,y,x+w,y,r);
+  ctx.closePath();
+  ctx.fill();
+}
+function drawBarChart(id, labels, values, color){
+  const {ctx,w,h} = setupCanvas(id, 170);
+  const max = Math.max(...values, 1);
+  const padding = 10;
+  const bottomPad = 30;
+  const chartH = h - bottomPad - 14;
+  const gap = 10;
+  const barW = (w - padding*2 - gap*(values.length-1)) / values.length;
+  ctx.font = '11px Vazirmatn, Tahoma, sans-serif';
+  ctx.textAlign = 'center';
+  values.forEach((v,i)=>{
+    const barH = max ? (v/max)*chartH : 0;
+    const x = padding + i*(barW+gap);
+    const y = chartH - barH + 14;
+    ctx.fillStyle = color;
+    roundRectFill(ctx, x, y, barW, barH, 6);
+    ctx.fillStyle = '#0F1B2D';
+    ctx.fillText(String(v), x+barW/2, y-6);
+    ctx.fillStyle = '#6B7686';
+    ctx.fillText(labels[i], x+barW/2, chartH+30);
+  });
+}
+function drawLineChart(id, labels, values, color){
+  const {ctx,w,h} = setupCanvas(id, 150);
+  const max = Math.max(...values, 1);
+  const padding = 12;
+  const bottomPad = 26;
+  const chartH = h - bottomPad - 14;
+  const stepX = (w - padding*2) / (values.length-1 || 1);
+  const pts = values.map((v,i)=> ({x: padding + i*stepX, y: chartH - (max? (v/max)*chartH:0) + 10}));
+
+  const grad = ctx.createLinearGradient(0,10,0,chartH+10);
+  grad.addColorStop(0, 'rgba(201,162,39,.35)');
+  grad.addColorStop(1, 'rgba(201,162,39,0)');
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, chartH+10);
+  pts.forEach(p=> ctx.lineTo(p.x,p.y));
+  ctx.lineTo(pts[pts.length-1].x, chartH+10);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  ctx.beginPath();
+  pts.forEach((p,i)=> i===0? ctx.moveTo(p.x,p.y) : ctx.lineTo(p.x,p.y));
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2.4;
+  ctx.lineJoin='round';
+  ctx.stroke();
+
+  ctx.font = '11px Vazirmatn, Tahoma, sans-serif';
+  ctx.textAlign = 'center';
+  pts.forEach((p,i)=>{
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,3.4,0,Math.PI*2);
+    ctx.fillStyle = '#0F1B2D';
+    ctx.fill();
+    ctx.fillStyle = '#6B7686';
+    ctx.fillText(labels[i], p.x, chartH+30);
+  });
+}
+
+function renderBackup(){
+  main.innerHTML = `
+    <div class="backup-card">
+      <h4>خروجی گرفتن از اطلاعات</h4>
+      <p>یک فایل پشتیبان از تمام مخاطبین، معاملات، وظایف، محصولات و اعضای تیم دانلود کن. این فایل را جای امنی نگه دار یا برای انتقال به دستگاه دیگر استفاده کن.</p>
+      <button class="btn btn-primary" id="exportBtn" style="width:100%;">دریافت فایل پشتیبان</button>
+    </div>
+    <div class="backup-card">
+      <h4>بازیابی از فایل پشتیبان</h4>
+      <p>با انتخاب یک فایل پشتیبان معتبر، اطلاعات فعلی این دستگاه با اطلاعات فایل جایگزین می‌شود.</p>
+      <label class="file-input-label" for="importFile">برای انتخاب فایل ضربه بزن</label>
+      <input type="file" id="importFile" accept="application/json" style="display:none;">
+    </div>
+    <div class="backup-card">
+      <h4>پاک کردن همه اطلاعات</h4>
+      <p>تمام مخاطبین، معاملات، وظایف، محصولات و اعضای تیم برای همیشه حذف می‌شوند. پیش از این کار حتماً فایل پشتیبان بگیر.</p>
+      <button class="btn btn-danger" id="resetBtn" style="width:100%;">پاک کردن همه اطلاعات</button>
+    </div>
+  `;
+  document.getElementById('exportBtn').addEventListener('click', exportData);
+  document.getElementById('importFile').addEventListener('change', (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    importData(file);
+  });
+  document.getElementById('resetBtn').addEventListener('click', ()=>{
+    if(confirm('مطمئنی می‌خوای همه اطلاعات پاک بشه؟ این کار قابل بازگشت نیست.')){
+      data = emptyData();
+      saveData(); render();
+    }
+  });
+}
+function exportData(){
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'ojwin-crm-backup-' + todayISO() + '.json';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+function importData(file){
+  const reader = new FileReader();
+  reader.onload = (e)=>{
+    try{
+      const parsed = JSON.parse(e.target.result);
+      if(!parsed || typeof parsed !== 'object') throw new Error('invalid');
+      if(!confirm('اطلاعات فعلی این دستگاه با محتوای فایل جایگزین می‌شود. ادامه می‌دهی؟')) return;
+      data = Object.assign(emptyData(), parsed);
+      saveData(); render();
+      alert('بازیابی با موفقیت انجام شد.');
+    }catch(err){
+      alert('فایل انتخاب‌شده معتبر نیست.');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function checkReminders(){
+  if(!('Notification' in window) || Notification.permission !== 'granted') return;
+  const now = new Date();
+  let changed = false;
+  data.tasks.forEach(t=>{
+    if(!t.done && !t.notified && t.time){
+      const dt = new Date(t.due + 'T' + t.time);
+      if(dt <= now && (now - dt) < 10*60*1000){
+        try{ new Notification('یادآوری اوج وین CRM', {body:t.title, icon:'icon-192.png'}); }catch(e){}
+        t.notified = true;
+        changed = true;
+      }
+    }
+  });
+  if(changed) saveData();
+}
+setInterval(checkReminders, 60000);
+setTimeout(checkReminders, 3000);
+
+render();
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('service-worker.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
