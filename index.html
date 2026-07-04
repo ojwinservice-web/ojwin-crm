@@ -799,8 +799,9 @@ let invoiceDraft = null;
 const MESH_PRICES = {
   'سفید': 3300000,
   'مشکی': 3500000,
-  'قهوه‌ای': 3600000,
-  'شامپاینی و بژ': 4200000
+  'قهوه‌ای': 3550000,
+  'شامپاینی': 4200000,
+  'بژ': 4200000
 };
 const INVOICE_TYPE_LABELS = { mesh:'توری پلیسه', window:'پنجره دوجداره' };
 const INVOICE_SUBJECTS = { mesh:'تولید و نصب توری پلیسه', window:'تولید و نصب پنجره دوجداره' };
@@ -881,31 +882,29 @@ function openInvoiceForm(id, forcedType){
 
 function invoiceItemRowHTML(it, idx, type){
   if(type==='mesh'){
-    const colorOptions = Object.keys(MESH_PRICES).map(c=>`<option value="${c}" ${it.frameColor===c?'selected':''}>${c}</option>`).join('');
+    const colorOptions = Object.keys(MESH_PRICES).map(c=>`<option value="${c}" ${it.frameColor===c?'selected':''}>${c} (${fmtMoney(MESH_PRICES[c])})</option>`).join('');
     return `
     <div style="border:1px solid #EAE6DA;border-radius:11px;padding:10px;margin-bottom:10px;">
       <div class="field" style="margin-bottom:8px;"><label style="display:block;font-size:11px;color:var(--muted);margin-bottom:4px;">شرح / محل نصب</label><input data-item-field="description" data-idx="${idx}" value="${it.description||''}" placeholder="مثلاً: پنجره آشپزخانه" style="width:100%;border:1px solid #E2DED2;border-radius:8px;padding:8px;font-family:inherit;font-size:12.5px;background:var(--off);"></div>
+      <div style="margin-bottom:8px;"><label style="display:block;font-size:11px;color:var(--muted);margin-bottom:4px;">نام محصول</label>
+        <select data-item-field="product" data-idx="${idx}" style="width:100%;border:1px solid #E2DED2;border-radius:8px;padding:8px;font-family:inherit;font-size:12.5px;background:var(--off);">
+          <option value="توری ثابت" ${it.product==='توری ثابت'?'selected':''}>توری ثابت</option>
+          <option value="توری پلیسه" ${it.product==='توری پلیسه'?'selected':''}>توری پلیسه</option>
+        </select>
+      </div>
       <div style="display:flex;gap:6px;margin-bottom:8px;">
         <div style="flex:1;"><label style="display:block;font-size:11px;color:var(--muted);margin-bottom:4px;">عرض (سانتی‌متر)</label><input type="number" data-item-field="widthCm" data-idx="${idx}" value="${it.widthCm}" style="width:100%;border:1px solid #E2DED2;border-radius:8px;padding:8px;font-family:inherit;font-size:12.5px;background:var(--off);"></div>
         <div style="flex:1;"><label style="display:block;font-size:11px;color:var(--muted);margin-bottom:4px;">ارتفاع (سانتی‌متر)</label><input type="number" data-item-field="heightCm" data-idx="${idx}" value="${it.heightCm}" style="width:100%;border:1px solid #E2DED2;border-radius:8px;padding:8px;font-family:inherit;font-size:12.5px;background:var(--off);"></div>
       </div>
-      <div style="display:flex;gap:6px;margin-bottom:8px;">
-        <div style="flex:1;"><label style="display:block;font-size:11px;color:var(--muted);margin-bottom:4px;">نام محصول</label>
-          <select data-item-field="product" data-idx="${idx}" style="width:100%;border:1px solid #E2DED2;border-radius:8px;padding:8px;font-family:inherit;font-size:12.5px;background:var(--off);">
-            <option value="توری ثابت" ${it.product==='توری ثابت'?'selected':''}>توری ثابت</option>
-            <option value="توری پلیسه" ${it.product==='توری پلیسه'?'selected':''}>توری پلیسه</option>
-          </select>
-        </div>
-        <div style="flex:1;"><label style="display:block;font-size:11px;color:var(--muted);margin-bottom:4px;">نوع فریم</label>
-          <select class="frameColorSelect" data-idx="${idx}" style="width:100%;border:1px solid #E2DED2;border-radius:8px;padding:8px;font-family:inherit;font-size:12.5px;background:var(--off);">${colorOptions}</select>
-        </div>
+      <div style="margin-bottom:8px;"><label style="display:block;font-size:11px;color:var(--muted);margin-bottom:4px;">تعداد</label><input type="number" data-item-field="qty" data-idx="${idx}" value="${it.qty}" style="width:100%;border:1px solid #E2DED2;border-radius:8px;padding:8px;font-family:inherit;font-size:12.5px;background:var(--off);"></div>
+      <div style="margin-bottom:8px;"><label style="display:block;font-size:11px;color:var(--muted);margin-bottom:4px;">رنگ فریم</label>
+        <select class="frameColorSelect" data-idx="${idx}" style="width:100%;border:1px solid #E2DED2;border-radius:8px;padding:8px;font-family:inherit;font-size:12.5px;background:var(--off);">${colorOptions}</select>
       </div>
       <div style="display:flex;gap:6px;align-items:flex-end;">
-        <div style="flex:0.8;"><label style="display:block;font-size:11px;color:var(--muted);margin-bottom:4px;">تعداد</label><input type="number" data-item-field="qty" data-idx="${idx}" value="${it.qty}" style="width:100%;border:1px solid #E2DED2;border-radius:8px;padding:8px;font-family:inherit;font-size:12.5px;background:var(--off);"></div>
-        <div style="flex:1.3;"><label style="display:block;font-size:11px;color:var(--muted);margin-bottom:4px;">قیمت واحد (متر مربع)</label><input type="number" data-item-field="unitPrice" data-idx="${idx}" value="${it.unitPrice}" style="width:100%;border:1px solid #E2DED2;border-radius:8px;padding:8px;font-family:inherit;font-size:12.5px;background:var(--off);"></div>
+        <div style="flex:1;"><label style="display:block;font-size:11px;color:var(--muted);margin-bottom:4px;">قیمت واحد (متر مربع)</label><input type="number" data-item-field="unitPrice" data-idx="${idx}" value="${it.unitPrice}" style="width:100%;border:1px solid #E2DED2;border-radius:8px;padding:8px;font-family:inherit;font-size:12.5px;background:var(--off);"></div>
         <button data-remove-item="${idx}" style="background:#FBEAEA;color:var(--red);border:none;border-radius:8px;width:34px;height:36px;flex-shrink:0;">✕</button>
       </div>
-      <div style="font-size:11px;color:var(--muted);margin-top:6px;">قیمت کل این ردیف: <span id="lt_${idx}">${fmtMoney(meshLineTotal(it))}</span></div>
+      <div style="font-size:11.5px;color:var(--navy);font-weight:700;margin-top:8px;">قیمت تمام‌شده این ردیف: <span id="lt_${idx}">${fmtMoney(meshLineTotal(it))}</span></div>
     </div>`;
   }
   return `
@@ -1157,7 +1156,8 @@ const MESH_COSTS = {
   'سفید': 2150000,
   'مشکی': 2300000,
   'قهوه‌ای': 2350000,
-  'شامپاینی و بژ': 2950000
+  'شامپاینی': 2950000,
+  'بژ': 2950000
 };
 const MESH_INSTALL_COST = 500000;
 
