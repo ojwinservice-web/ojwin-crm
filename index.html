@@ -1161,69 +1161,138 @@ const MESH_COSTS = {
 };
 const MESH_INSTALL_COST = 500000;
 
+let meshCalcItems = null;
+
 function renderMeshCalc(){
-  const colorOptions = Object.keys(MESH_PRICES).map(c=>`<option value="${c}">${c} (${fmtMoney(MESH_PRICES[c])} / متر مربع)</option>`).join('');
+  meshCalcItems = [{width:'', height:'', frameColor:'سفید'}];
+  renderMeshCalcUI();
+}
+
+function meshCalcRowArea(it){
+  const w = Number(it.width)||0, h = Number(it.height)||0;
+  if(w<=0 || h<=0) return 0;
+  return Math.max(w*h, 1);
+}
+function meshCalcRowPrice(it){
+  const area = meshCalcRowArea(it);
+  return Math.round(area * (MESH_PRICES[it.frameColor]||0));
+}
+function meshCalcRowCost(it){
+  const area = meshCalcRowArea(it);
+  return Math.round(area * (MESH_COSTS[it.frameColor]||0));
+}
+
+function meshCalcRowHTML(it, idx){
+  const colorOptions = Object.keys(MESH_PRICES).map(c=>`<option value="${c}" ${it.frameColor===c?'selected':''}>${c} (${fmtMoney(MESH_PRICES[c])})</option>`).join('');
+  return `
+  <div style="border:1px solid #EAE6DA;border-radius:11px;padding:10px;margin-bottom:10px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <div style="font-size:11.5px;font-weight:700;color:var(--navy);">آیتم ${idx+1}</div>
+      ${meshCalcItems.length>1 ? `<button class="mcRemove" data-idx="${idx}" style="background:#FBEAEA;color:var(--red);border:none;border-radius:8px;width:28px;height:28px;">✕</button>` : ''}
+    </div>
+    <div style="display:flex;gap:6px;margin-bottom:8px;">
+      <div style="flex:1;"><label style="display:block;font-size:11px;color:var(--muted);margin-bottom:4px;">عرض (متر)</label><input type="number" step="0.01" min="0" class="mcWidth" data-idx="${idx}" value="${it.width}" placeholder="مثلاً 1.2" style="width:100%;border:1px solid #E2DED2;border-radius:8px;padding:8px;font-family:inherit;font-size:12.5px;background:var(--off);"></div>
+      <div style="flex:1;"><label style="display:block;font-size:11px;color:var(--muted);margin-bottom:4px;">ارتفاع (متر)</label><input type="number" step="0.01" min="0" class="mcHeight" data-idx="${idx}" value="${it.height}" placeholder="مثلاً 1.5" style="width:100%;border:1px solid #E2DED2;border-radius:8px;padding:8px;font-family:inherit;font-size:12.5px;background:var(--off);"></div>
+    </div>
+    <div style="margin-bottom:8px;"><label style="display:block;font-size:11px;color:var(--muted);margin-bottom:4px;">رنگ فریم</label>
+      <select class="mcColor" data-idx="${idx}" style="width:100%;border:1px solid #E2DED2;border-radius:8px;padding:8px;font-family:inherit;font-size:12.5px;background:var(--off);">${colorOptions}</select>
+    </div>
+    <div style="font-size:11.5px;color:var(--navy);font-weight:700;">قیمت این ردیف: <span id="mc_lt_${idx}">${fmtMoney(meshCalcRowPrice(it))}</span></div>
+  </div>`;
+}
+
+function renderMeshCalcUI(){
+  const rowsHtml = meshCalcItems.map((it,idx)=> meshCalcRowHTML(it, idx)).join('');
   main.innerHTML = `
     <div class="backup-card">
       <h4>محاسبه قیمت توری پلیسه</h4>
-      <p>عرض و ارتفاع را به متر وارد کن. اگر متراژ کمتر از یک متر مربع باشد، یک متر مربع محاسبه می‌شود.</p>
-      <div class="field"><label>عرض (متر)</label><input id="mc_width" type="number" step="0.01" min="0" placeholder="مثلاً: 1.2"></div>
-      <div class="field"><label>ارتفاع (متر)</label><input id="mc_height" type="number" step="0.01" min="0" placeholder="مثلاً: 1.5"></div>
-      <div class="field"><label>رنگ فریم</label><select id="mc_color">${colorOptions}</select></div>
-      <button class="btn btn-primary" id="mc_calc" style="width:100%;">محاسبه قیمت</button>
+      <p>برای هر پنجره یا محل نصب، ابعاد و رنگ فریم را وارد کن. اگر مشتری چند ابعاد مختلف دارد، با دکمه زیر ردیف‌های بیشتری اضافه کن. ابعاد زیر یک متر مربع، یک متر مربع محاسبه می‌شود.</p>
     </div>
-    <div id="mc_result"></div>
+    <div id="mc_items">${rowsHtml}</div>
+    <button class="btn btn-ghost" id="mc_addRow" style="width:100%;margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:6px;">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--navy)" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      افزودن ابعاد جدید
+    </button>
+    <div id="mc_summary"></div>
   `;
-  document.getElementById('mc_calc').addEventListener('click', ()=>{
-    const w = Number(document.getElementById('mc_width').value);
-    const h = Number(document.getElementById('mc_height').value);
-    const color = document.getElementById('mc_color').value;
-    const resultBox = document.getElementById('mc_result');
-    if(!w || !h || w<=0 || h<=0){
-      resultBox.innerHTML = `<div class="info-note">لطفاً عرض و ارتفاع را درست وارد کن.</div>`;
-      return;
-    }
-    let area = w * h;
-    if(area < 1) area = 1;
-    const unitPrice = MESH_PRICES[color];
-    const total = Math.round(area * unitPrice);
-    const costPerSqm = MESH_COSTS[color];
-    const productionCost = Math.round(area * costPerSqm);
-    const totalCost = productionCost + MESH_INSTALL_COST;
-    const profit = total - totalCost;
-    const profitMargin = total>0 ? Math.round((profit/total)*100) : 0;
-    resultBox.innerHTML = `
-      <div class="stat-grid">
-        <div class="stat-card"><div class="stat-num">${area.toFixed(2)}</div><div class="stat-label">متراژ محاسبه‌شده (متر مربع)</div><div class="stat-accent"></div></div>
-        <div class="stat-card"><div class="stat-num">${fmtMoney(unitPrice)}</div><div class="stat-label">قیمت فروش هر متر مربع</div><div class="stat-accent"></div></div>
-      </div>
-      <div class="backup-card">
-        <h4>مبلغ فروش (مشتری)</h4>
-        <p style="font-size:20px;font-weight:800;color:var(--navy);margin:0;">${fmtMoney(total)}</p>
-      </div>
-      <div class="section-title" style="margin-top:6px;">تحلیل سود (فقط برای خودت)</div>
-      <div class="stat-grid">
-        <div class="stat-card"><div class="stat-num">${fmtMoney(productionCost)}</div><div class="stat-label">هزینه تولید (${color})</div><div class="stat-accent"></div></div>
-        <div class="stat-card"><div class="stat-num">${fmtMoney(MESH_INSTALL_COST)}</div><div class="stat-label">هزینه نصب</div><div class="stat-accent"></div></div>
-        <div class="stat-card"><div class="stat-num">${fmtMoney(totalCost)}</div><div class="stat-label">مجموع هزینه‌ها</div><div class="stat-accent"></div></div>
-        <div class="stat-card"><div class="stat-num" style="color:${profit>=0?'var(--green)':'var(--red)'};">${fmtMoney(profit)}</div><div class="stat-label">سود خالص (${profitMargin}%)</div><div class="stat-accent"></div></div>
-      </div>
-      <button class="btn btn-primary" id="mc_addDeal" style="width:100%;">ثبت به‌عنوان معامله جدید</button>
-    `;
-    document.getElementById('mc_addDeal').addEventListener('click', ()=>{
-      data.deals.push({
-        id: uid(),
-        title: `توری پلیسه ${w}×${h} متر - رنگ ${color}`,
-        value: total,
-        stage: 0,
-        contact: '',
-        productId: null,
-        assignee: null,
-        createdAt: new Date().toISOString()
-      });
-      saveData();
-      alert('معامله جدید در بخش «معاملات» ثبت شد.');
+  attachMeshCalcHandlers();
+  updateMeshCalcSummary();
+}
+
+function attachMeshCalcHandlers(){
+  document.querySelectorAll('.mcWidth, .mcHeight').forEach(inp=>{
+    inp.addEventListener('input', (e)=>{
+      const idx = Number(e.target.dataset.idx);
+      if(e.target.classList.contains('mcWidth')) meshCalcItems[idx].width = e.target.value;
+      else meshCalcItems[idx].height = e.target.value;
+      const span = document.getElementById('mc_lt_'+idx);
+      if(span) span.textContent = fmtMoney(meshCalcRowPrice(meshCalcItems[idx]));
+      updateMeshCalcSummary();
     });
+  });
+  document.querySelectorAll('.mcColor').forEach(sel=>{
+    sel.addEventListener('change', (e)=>{
+      const idx = Number(e.target.dataset.idx);
+      meshCalcItems[idx].frameColor = e.target.value;
+      const span = document.getElementById('mc_lt_'+idx);
+      if(span) span.textContent = fmtMoney(meshCalcRowPrice(meshCalcItems[idx]));
+      updateMeshCalcSummary();
+    });
+  });
+  document.querySelectorAll('.mcRemove').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const idx = Number(btn.dataset.idx);
+      meshCalcItems.splice(idx,1);
+      renderMeshCalcUI();
+    });
+  });
+  document.getElementById('mc_addRow').addEventListener('click', ()=>{
+    meshCalcItems.push({width:'', height:'', frameColor:'سفید'});
+    renderMeshCalcUI();
+  });
+}
+
+function updateMeshCalcSummary(){
+  const box = document.getElementById('mc_summary');
+  if(!box) return;
+  const validItems = meshCalcItems.filter(it=> Number(it.width)>0 && Number(it.height)>0);
+  if(validItems.length===0){
+    box.innerHTML = `<div class="info-note">ابعاد حداقل یک ردیف را وارد کن تا قیمت محاسبه شود.</div>`;
+    return;
+  }
+  const totalSale = validItems.reduce((s,it)=> s+meshCalcRowPrice(it), 0);
+  const totalProductionCost = validItems.reduce((s,it)=> s+meshCalcRowCost(it), 0);
+  const totalCost = totalProductionCost + MESH_INSTALL_COST;
+  const profit = totalSale - totalCost;
+  const margin = totalSale>0 ? Math.round((profit/totalSale)*100) : 0;
+  box.innerHTML = `
+    <div class="backup-card">
+      <h4>جمع کل مبلغ فروش (${validItems.length} آیتم)</h4>
+      <p style="font-size:20px;font-weight:800;color:var(--navy);margin:0;">${fmtMoney(totalSale)}</p>
+    </div>
+    <div class="backup-card" style="border:1.5px solid var(--gold);">
+      <h4>سود من</h4>
+      <p style="font-size:11.5px;color:var(--muted);margin:0 0 8px;">قیمت فروش منهای هزینه تولید همه آیتم‌ها و هزینه نصب</p>
+      <p style="font-size:20px;font-weight:800;color:${profit>=0?'var(--green)':'var(--red)'};margin:0;">${fmtMoney(profit)}</p>
+      <p style="font-size:11px;color:var(--muted);margin-top:6px;">هزینه تولید: ${fmtMoney(totalProductionCost)} · هزینه نصب: ${fmtMoney(MESH_INSTALL_COST)} · حاشیه سود: ${margin}%</p>
+    </div>
+    <button class="btn btn-primary" id="mc_submitOrder" style="width:100%;">ثبت سفارش در پیش‌فاکتور</button>
+  `;
+  document.getElementById('mc_submitOrder').addEventListener('click', ()=>{
+    const items = validItems.map(it=>({
+      description: '',
+      widthCm: Math.round(Number(it.width)*100),
+      heightCm: Math.round(Number(it.height)*100),
+      qty: 1,
+      product: 'توری پلیسه',
+      frameColor: it.frameColor,
+      unitPrice: MESH_PRICES[it.frameColor]
+    }));
+    invoiceDraft = {
+      type: 'mesh', subject: INVOICE_SUBJECTS['mesh'], contact:'', phone:'', date:todayISO(), deliverDate:todayISO(),
+      items, discount:0, notes:''
+    };
+    renderInvoiceSheet(null);
   });
 }
 
