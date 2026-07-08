@@ -1171,7 +1171,7 @@ function renderMeshCalc(){
 function meshCalcRowArea(it){
   const w = Number(it.width)||0, h = Number(it.height)||0;
   if(w<=0 || h<=0) return 0;
-  return Math.max(w*h, 1);
+  return Math.max(w*h, 1.15);
 }
 function meshCalcRowPrice(it){
   const area = meshCalcRowArea(it);
@@ -1206,7 +1206,7 @@ function renderMeshCalcUI(){
   main.innerHTML = `
     <div class="backup-card">
       <h4>محاسبه قیمت توری پلیسه</h4>
-      <p>برای هر پنجره یا محل نصب، ابعاد و رنگ فریم را وارد کن. اگر مشتری چند ابعاد مختلف دارد، با دکمه زیر ردیف‌های بیشتری اضافه کن. ابعاد زیر یک متر مربع، یک متر مربع محاسبه می‌شود.</p>
+      <p>برای هر پنجره یا محل نصب، ابعاد و رنگ فریم را وارد کن. اگر مشتری چند ابعاد مختلف دارد، با دکمه زیر ردیف‌های بیشتری اضافه کن. ابعاد زیر ۱.۱۵ متر مربع، ۱.۱۵ متر مربع محاسبه می‌شود.</p>
     </div>
     <div id="mc_items">${rowsHtml}</div>
     <button class="btn btn-ghost" id="mc_addRow" style="width:100%;margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:6px;">
