@@ -425,6 +425,8 @@ function renderDashboard(){
   const wonValue = data.deals.filter(d=>d.stage===3).reduce((s,d)=>s+Number(d.value),0);
   const pipelineValue = openDeals.reduce((s,d)=>s+Number(d.value),0);
   const todayTasks = data.tasks.filter(t=>!t.done);
+  const totalRevenue = data.invoices.reduce((s,inv)=> s+invoiceTotal(inv), 0);
+  const totalProfit = data.invoices.reduce((s,inv)=> s+invoiceProfit(inv), 0);
 
   main.innerHTML = `
     <div class="stat-grid">
@@ -432,6 +434,8 @@ function renderDashboard(){
       <div class="stat-card"><div class="stat-num">${openDeals.length}</div><div class="stat-label">معامله باز</div><div class="stat-accent"></div></div>
       <div class="stat-card"><div class="stat-num">${fmtMoney(pipelineValue)}</div><div class="stat-label">ارزش پایپ‌لاین</div><div class="stat-accent"></div></div>
       <div class="stat-card"><div class="stat-num">${fmtMoney(wonValue)}</div><div class="stat-label">معاملات موفق</div><div class="stat-accent"></div></div>
+      <div class="stat-card"><div class="stat-num">${fmtMoney(totalRevenue)}</div><div class="stat-label">دریافتی از مشتریان (پیش‌فاکتورها)</div><div class="stat-accent"></div></div>
+      <div class="stat-card" style="border:1.5px solid var(--gold);"><div class="stat-num" style="color:${totalProfit>=0?'var(--green)':'var(--red)'};">${fmtMoney(totalProfit)}</div><div class="stat-label">سود کل (توری پلیسه)</div><div class="stat-accent"></div></div>
     </div>
     <button id="dashMeshCalc" style="width:100%;display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,var(--navy),var(--slate));border:none;border-radius:14px;padding:14px 16px;margin-bottom:18px;text-align:right;">
       <div style="width:40px;height:40px;border-radius:11px;background:var(--gold);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
@@ -991,7 +995,7 @@ function fmtDateJalaliLatin(iso){
 function fmtMoneyLatin(n){ return Number(n||0).toLocaleString('en-US'); }
 
 function meshLineTotal(it){
-  const areaPerUnit = Math.max((Number(it.widthCm||0)/100) * (Number(it.heightCm||0)/100), 1);
+  const areaPerUnit = Math.max((Number(it.widthCm||0)/100) * (Number(it.heightCm||0)/100), 1.15);
   return Math.round(areaPerUnit * Number(it.qty||1) * Number(it.unitPrice||0));
 }
 function lineTotalFor(inv, it){
@@ -1000,6 +1004,19 @@ function lineTotalFor(inv, it){
 function invoiceTotal(inv){
   const subtotal = inv.items.reduce((s,it)=> s + lineTotalFor(inv,it), 0);
   return Math.max(0, subtotal - Number(inv.discount||0));
+}
+function invoiceProductionCost(inv){
+  if(inv.type!=='mesh') return 0;
+  return inv.items.reduce((s,it)=>{
+    const area = Math.max((Number(it.widthCm||0)/100) * (Number(it.heightCm||0)/100), 1.15);
+    return s + Math.round(area * Number(it.qty||1) * (MESH_COSTS[it.frameColor]||0));
+  }, 0);
+}
+function invoiceInstallCost(inv){
+  return inv.type==='mesh' ? MESH_INSTALL_COST : 0;
+}
+function invoiceProfit(inv){
+  return invoiceTotal(inv) - invoiceProductionCost(inv) - invoiceInstallCost(inv);
 }
 
 function renderInvoices(){
@@ -1178,7 +1195,18 @@ function renderInvoiceSheet(id){
       Object.assign(data.invoices.find(x=>x.id===id), payload);
     } else {
       const number = (data.invoices.length ? Math.max(...data.invoices.map(x=>x.number||1000100)) : 1000100) + 1;
-      data.invoices.push({id:uid(), number, ...payload});
+      const newInvoice = {id:uid(), number, ...payload};
+      data.invoices.push(newInvoice);
+      data.deals.push({
+        id: uid(),
+        title: `پیش‌فاکتور ${INVOICE_TYPE_LABELS[type]} #${number}${payload.contact? ' - '+payload.contact:''}`,
+        value: invoiceTotal(newInvoice),
+        stage: 0,
+        contact: payload.contact||'',
+        productId: null,
+        assignee: null,
+        createdAt: new Date().toISOString()
+      });
     }
     saveData(); closeSheet(); render();
   });
