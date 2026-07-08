@@ -183,7 +183,7 @@ const STAGES = ['سرنخ','مذاکره','پیشنهاد قیمت','بسته ش
 const STAGES_SHORT = ['سرنخ','مذاکره','پیشنهاد','برد','باخت'];
 
 function emptyData(){
-  return { contacts:[], deals:[], tasks:[], products:[], team:[], campaigns:[], calls:[], invoices:[] };
+  return { contacts:[], deals:[], tasks:[], products:[], team:[], campaigns:[], calls:[], invoices:[], templates:[] };
 }
 
 function monthsAgoISO(n){
@@ -226,7 +226,42 @@ function loadData(){
       {id: uid(), name:'کمپین نوروزی اینستاگرام', channel:'اینستاگرام', budget:8000000, startDate: todayISO(), endDate: todayISO(), status:'در حال اجرا', notes:'تخفیف ۲۰٪ برای مشتریان جدید'}
     ],
     calls: [],
-    invoices: []
+    invoices: [],
+    templates: [
+      {id: uid(), title:'تایید دریافت بیعانه', text:`جناب آقای/سرکار خانم {نام} عزیز،
+
+پرداخت بیعانه شما بابت سفارش {شماره سفارش} با موفقیت دریافت شد. سفارش شما در سیستم مدیریت پروژه اوج وین ثبت شد. تیم فنی در حال بررسی ابعاد و جزئیات است تا همه چیز برای تولید بی‌نقص آماده شود. به‌زودی برای مراحل بعدی با شما در تماس خواهیم بود.
+از اعتماد شما سپاسگزاریم. تیم ما در تمامی مراحل تولید در کنار شماست.`},
+      {id: uid(), title:'شروع فرآیند تولید', text:`مشتری گرامی {نام}،
+
+سفارش شما (شماره {شماره سفارش}) وارد خط تولید و تامین متریال شد. همکاران فنی ما در اوج وین هم‌اکنون در حال آماده‌سازی و بررسی کیفیت قطعات شما هستند. پیشرفت کار را به شما اطلاع خواهیم داد.`},
+      {id: uid(), title:'کنترل کیفیت (QC)', text:`{نام} عزیز، سفارش شما از مرحله تولید عبور کرد و اکنون در واحد کنترل کیفیت (QC) است. تمام درزگیری‌ها و روان بودن بازشوها چک می‌شود تا خروجی دقیقاً همان چیزی باشد که انتظارش را دارید.`},
+      {id: uid(), title:'آماده‌سازی نهایی و آماده ارسال', text:`{نام} عزیز، محصول شما آماده نصب است! واحد لجستیک برای هماهنگی زمان دقیق حضور تیم نصب، به‌زودی با شما تماس می‌گیرد.`},
+      {id: uid(), title:'پس از نصب و تحویل (نظرسنجی)', text:`جناب آقای/سرکار خانم {نام}،
+
+مفتخریم که پروژه شما با موفقیت تحویل شد. امیدواریم از کیفیت و دقت اجرای کار راضی باشید. در صورت نیاز به هرگونه خدمات پس از فروش، کارشناسان ما در کنار شما هستند. خوشحال می‌شویم اگر نظرات خود را برای بهبود کیفیت خدمات با ما در میان بگذارید.
+
+با احترام، تیم مدیریت اوج وین.`},
+      {id: uid(), title:'ارجاع به واحد بازدید فنی', text:`جناب آقای/سرکار خانم {نام} گرامی،
+
+با سلام و احترام،
+
+پیرو درخواست شما جهت سفارش توری پلیسه، بدین‌وسیله به استحضار می‌رساند اطلاعات تماس شما جهت برنامه‌ریزی برای بازدید فنی و اندازه‌گیری دقیق، به واحد مهندسی «اوج وین» ارجاع داده شد.
+
+کارشناس مربوطه حداکثر تا بعدازظهر (قبل از ساعت ۵) جهت هماهنگی زمان بازدید با شما تماس حاصل خواهند کرد.
+
+از اعتماد شما سپاسگزاریم و متعهد به ارائه بهترین خدمات در تمامی مراحل هستیم.
+
+با احترام،
+مدیریت «اوج وین»`},
+      {id: uid(), title:'تشکر و دعوت حضوری (غیررسمی)', text:`سلام {نام} عزیز، خواهش می‌کنم، انجام وظیفه بود. خوشحالم که بررسی کردید.
+
+راستش این‌جور مسائل فنی توی پیام‌ها خیلی خوب جا نمی‌افتد؛ اگر وقت دارید، افتخار بدید یه قهوه یا چای مهمون ما باشید تا هم بیشتر آشنا بشیم و هم اگر سوال دقیق‌تری دارید، خیلی راحت‌تر کنار هم بررسی‌اش کنیم.
+اوج‌وین همیشه سعی کرده به جای فروش صرف، روی مشاوره صادقانه کار کند. اگر فرصت کردید، خوشحال می‌شویم تشریف بیاورید.
+
+با سپاس
+مهندس کاکتی`}
+    ]
   };
 }
 function saveData(){ localStorage.setItem(STORE_KEY, JSON.stringify(data)); }
@@ -244,6 +279,44 @@ function fmtMonthShort(iso){
 function initials(name){ return (name||'؟').trim().slice(0,1); }
 
 let data = loadData();
+if(!data.templates || data.templates.length===0){
+  data.templates = [
+    {id: uid(), title:'تایید دریافت بیعانه', text:`جناب آقای/سرکار خانم {نام} عزیز،
+
+پرداخت بیعانه شما بابت سفارش {شماره سفارش} با موفقیت دریافت شد. سفارش شما در سیستم مدیریت پروژه اوج وین ثبت شد. تیم فنی در حال بررسی ابعاد و جزئیات است تا همه چیز برای تولید بی‌نقص آماده شود. به‌زودی برای مراحل بعدی با شما در تماس خواهیم بود.
+از اعتماد شما سپاسگزاریم. تیم ما در تمامی مراحل تولید در کنار شماست.`},
+    {id: uid(), title:'شروع فرآیند تولید', text:`مشتری گرامی {نام}،
+
+سفارش شما (شماره {شماره سفارش}) وارد خط تولید و تامین متریال شد. همکاران فنی ما در اوج وین هم‌اکنون در حال آماده‌سازی و بررسی کیفیت قطعات شما هستند. پیشرفت کار را به شما اطلاع خواهیم داد.`},
+    {id: uid(), title:'کنترل کیفیت (QC)', text:`{نام} عزیز، سفارش شما از مرحله تولید عبور کرد و اکنون در واحد کنترل کیفیت (QC) است. تمام درزگیری‌ها و روان بودن بازشوها چک می‌شود تا خروجی دقیقاً همان چیزی باشد که انتظارش را دارید.`},
+    {id: uid(), title:'آماده‌سازی نهایی و آماده ارسال', text:`{نام} عزیز، محصول شما آماده نصب است! واحد لجستیک برای هماهنگی زمان دقیق حضور تیم نصب، به‌زودی با شما تماس می‌گیرد.`},
+    {id: uid(), title:'پس از نصب و تحویل (نظرسنجی)', text:`جناب آقای/سرکار خانم {نام}،
+
+مفتخریم که پروژه شما با موفقیت تحویل شد. امیدواریم از کیفیت و دقت اجرای کار راضی باشید. در صورت نیاز به هرگونه خدمات پس از فروش، کارشناسان ما در کنار شما هستند. خوشحال می‌شویم اگر نظرات خود را برای بهبود کیفیت خدمات با ما در میان بگذارید.
+
+با احترام، تیم مدیریت اوج وین.`},
+    {id: uid(), title:'ارجاع به واحد بازدید فنی', text:`جناب آقای/سرکار خانم {نام} گرامی،
+
+با سلام و احترام،
+
+پیرو درخواست شما جهت سفارش توری پلیسه، بدین‌وسیله به استحضار می‌رساند اطلاعات تماس شما جهت برنامه‌ریزی برای بازدید فنی و اندازه‌گیری دقیق، به واحد مهندسی «اوج وین» ارجاع داده شد.
+
+کارشناس مربوطه حداکثر تا بعدازظهر (قبل از ساعت ۵) جهت هماهنگی زمان بازدید با شما تماس حاصل خواهند کرد.
+
+از اعتماد شما سپاسگزاریم و متعهد به ارائه بهترین خدمات در تمامی مراحل هستیم.
+
+با احترام،
+مدیریت «اوج وین»`},
+    {id: uid(), title:'تشکر و دعوت حضوری (غیررسمی)', text:`سلام {نام} عزیز، خواهش می‌کنم، انجام وظیفه بود. خوشحالم که بررسی کردید.
+
+راستش این‌جور مسائل فنی توی پیام‌ها خیلی خوب جا نمی‌افتد؛ اگر وقت دارید، افتخار بدید یه قهوه یا چای مهمون ما باشید تا هم بیشتر آشنا بشیم و هم اگر سوال دقیق‌تری دارید، خیلی راحت‌تر کنار هم بررسی‌اش کنیم.
+اوج‌وین همیشه سعی کرده به جای فروش صرف، روی مشاوره صادقانه کار کند. اگر فرصت کردید، خوشحال می‌شویم تشریف بیاورید.
+
+با سپاس
+مهندس کاکتی`}
+  ];
+  saveData();
+}
 let currentTab = 'dashboard';
 
 const main = document.getElementById('main');
@@ -270,6 +343,7 @@ fabBtn.addEventListener('click', ()=>{
   else if(currentTab==='campaigns') openCampaignForm();
   else if(currentTab==='calls') openCallForm();
   else if(currentTab==='invoices') openInvoiceTypeChooser();
+  else if(currentTab==='templates') openTemplateForm();
   else openTaskForm();
 });
 document.getElementById('menuBtn').addEventListener('click', openMoreMenu);
@@ -288,6 +362,7 @@ function openMoreMenu(){
     <button class="menu-item" data-go="calls"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 5c0 9 7 16 16 16l3-4-6-3-2 2c-2-1-4-3-5-5l2-2-3-6-4 1z"/></svg><span>ثبت تماس مشتری</span></button>
     <button class="menu-item" data-go="invoices"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 2h9l5 5v15a1 1 0 01-1 1H6a1 1 0 01-1-1V3a1 1 0 011-1z"/><path d="M9 12h6M9 16h6M9 8h3"/></svg><span>صدور پیش‌فاکتور</span></button>
     <button class="menu-item" data-go="meshcalc"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg><span>محاسبه قیمت توری پلیسه</span></button>
+    <button class="menu-item" data-go="templates"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.4 8.4 0 01-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.4 8.4 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg><span>پیام‌های آماده</span></button>
     <button class="menu-item" data-go="backup"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg><span>پشتیبان‌گیری و بازیابی</span></button>
   `);
   sheet.querySelectorAll('[data-go]').forEach(b=> b.addEventListener('click', ()=>{
@@ -311,6 +386,7 @@ function render(){
     calls:['ثبت تماس مشتری','لیست تماس‌های ثبت‌شده'],
     meshcalc:['محاسبه قیمت توری پلیسه','بر اساس ابعاد و رنگ فریم'],
     invoices:['پیش‌فاکتورها','صدور و مدیریت پیش‌فاکتور'],
+    templates:['پیام‌های آماده','قالب پیام برای مخاطبین'],
     backup:['پشتیبان‌گیری','خروجی، ورودی و پاک‌سازی اطلاعات']
   };
   pageTitleEl.textContent = titles[currentTab][0];
@@ -327,6 +403,7 @@ function render(){
   else if(currentTab==='calls') renderCalls();
   else if(currentTab==='meshcalc') renderMeshCalc();
   else if(currentTab==='invoices') renderInvoices();
+  else if(currentTab==='templates') renderTemplates();
   else if(currentTab==='backup') renderBackup();
 
   updateFab();
@@ -405,10 +482,12 @@ function renderContactList(q){
         <div class="contact-name">${c.name}</div>
         <div class="contact-sub">${c.phone||''} ${c.address? '· '+c.address:''}</div>
       </div>
+      <button class="icon-btn" data-msg="${c.id}" style="background:#E6F4EA;"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke="var(--green)"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.4 8.4 0 01-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.4 8.4 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg></button>
       <button class="icon-btn" data-edit="${c.id}"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
     </div>
   `).join('');
   list.querySelectorAll('[data-edit]').forEach(b=> b.addEventListener('click', ()=> openContactForm(b.dataset.edit)));
+  list.querySelectorAll('[data-msg]').forEach(b=> b.addEventListener('click', ()=> openSendMessage(b.dataset.msg)));
 }
 
 function openContactForm(id){
@@ -435,6 +514,95 @@ function openContactForm(id){
     data.contacts = data.contacts.filter(x=>x.id!==c.id);
     saveData(); closeSheet(); render();
   });}
+}
+
+function normalizePhoneForWhatsapp(phone){
+  let p = String(phone||'').replace(/\D/g,'');
+  if(!p) return '';
+  if(p.startsWith('0')) p = '98'+p.slice(1);
+  else if(!p.startsWith('98')) p = '98'+p;
+  return p;
+}
+
+function renderTemplates(){
+  main.innerHTML = `<div id="templateList"></div>`;
+  const list = document.getElementById('templateList');
+  if(data.templates.length===0){ list.innerHTML = emptyState('هنوز قالبی نساختی','با دکمه + یک قالب پیام آماده بساز.'); return; }
+  list.innerHTML = data.templates.map(t=>`
+    <div class="contact-card" style="align-items:flex-start;">
+      <div class="avatar gold">${initials(t.title)}</div>
+      <div class="contact-info">
+        <div class="contact-name">${t.title}</div>
+        <div class="contact-sub">${t.text}</div>
+      </div>
+      <button class="icon-btn" data-edit="${t.id}"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
+    </div>
+  `).join('');
+  list.querySelectorAll('[data-edit]').forEach(b=> b.addEventListener('click', ()=> openTemplateForm(b.dataset.edit)));
+}
+
+function openTemplateForm(id){
+  const t = id ? data.templates.find(x=>x.id===id) : null;
+  openSheet(`
+    <h3>${t?'ویرایش قالب پیام':'قالب پیام جدید'}</h3>
+    <div class="field"><label>عنوان قالب</label><input id="f_tmplTitle" value="${t?t.title:''}" placeholder="مثلاً: اطلاع‌رسانی آماده شدن سفارش"></div>
+    <div class="field"><label>متن پیام</label><textarea id="f_tmplText" placeholder="سلام {نام} عزیز، ...">${t?t.text:''}</textarea></div>
+    <div class="info-note">می‌تونی از {نام} داخل متن استفاده کنی؛ موقع ارسال، خودکار با نام مخاطب جایگزین می‌شود.</div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="saveTemplate">${t?'ذخیره تغییرات':'افزودن قالب'}</button>
+      ${t?'<button class="btn btn-danger" id="delTemplate">حذف</button>':''}
+    </div>
+  `);
+  document.getElementById('saveTemplate').addEventListener('click', ()=>{
+    const title = document.getElementById('f_tmplTitle').value.trim();
+    const text = document.getElementById('f_tmplText').value.trim();
+    if(!title || !text) return;
+    if(t){ Object.assign(t, {title, text}); } else { data.templates.push({id:uid(), title, text}); }
+    saveData(); closeSheet(); render();
+  });
+  if(t){ document.getElementById('delTemplate').addEventListener('click', ()=>{
+    data.templates = data.templates.filter(x=>x.id!==t.id);
+    saveData(); closeSheet(); render();
+  });}
+}
+
+function openSendMessage(contactId){
+  const c = data.contacts.find(x=>x.id===contactId);
+  if(!c) return;
+  const templateOptions = data.templates.map(t=>`<option value="${t.id}">${t.title}</option>`).join('');
+  openSheet(`
+    <h3>ارسال پیام به ${c.name}</h3>
+    ${!c.phone ? '<div class="info-note">این مخاطب شماره تماس ثبت‌شده ندارد؛ می‌تونی متن رو کپی کنی.</div>' : ''}
+    <div class="field"><label>انتخاب قالب</label><select id="msg_template"><option value="">— متن دلخواه —</option>${templateOptions}</select></div>
+    <div class="field"><label>متن پیام</label><textarea id="msg_text" style="min-height:110px;"></textarea></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="msg_whatsapp">ارسال با واتساپ</button>
+      <button class="btn btn-ghost" id="msg_sms">ارسال پیامک</button>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" id="msg_copy" style="width:100%;">کپی متن پیام</button>
+    </div>
+  `);
+  document.getElementById('msg_template').addEventListener('change', (e)=>{
+    const t = data.templates.find(x=>x.id===e.target.value);
+    const textarea = document.getElementById('msg_text');
+    textarea.value = t ? t.text.replace(/\{نام\}/g, c.name) : '';
+  });
+  document.getElementById('msg_whatsapp').addEventListener('click', ()=>{
+    const text = document.getElementById('msg_text').value;
+    const num = normalizePhoneForWhatsapp(c.phone);
+    if(!num){ alert('این مخاطب شماره تماس معتبر ندارد.'); return; }
+    window.open(`https://wa.me/${num}?text=${encodeURIComponent(text)}`, '_blank');
+  });
+  document.getElementById('msg_sms').addEventListener('click', ()=>{
+    const text = document.getElementById('msg_text').value;
+    if(!c.phone){ alert('این مخاطب شماره تماس ثبت‌شده ندارد.'); return; }
+    window.location.href = `sms:${c.phone}?body=${encodeURIComponent(text)}`;
+  });
+  document.getElementById('msg_copy').addEventListener('click', ()=>{
+    const text = document.getElementById('msg_text').value;
+    navigator.clipboard.writeText(text).then(()=> alert('متن پیام کپی شد.')).catch(()=>{});
+  });
 }
 
 function renderDeals(){
