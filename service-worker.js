@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ojwin-crm-v11';
+const CACHE_NAME = 'ojwin-crm-v12';
 const ASSETS = ['./index.html', './manifest.json', './icon-192.png', './icon-512.png', './cloud.js'];
 
 self.addEventListener('install', (event) => {
