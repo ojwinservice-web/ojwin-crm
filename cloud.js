@@ -103,9 +103,9 @@ async function syncFromFirestore() {
     return true;
   } catch (err) {
     syncStatus = 'error';
+    window.__syncErr = String((err && err.message) || err);
     updateSyncIndicator();
     console.error('Sync from Firestore failed:', err);
-    window.__syncErr = String((err && err.message) || err);
     window.__syncErr = String((err && err.message) || err);
     window.__syncErr = String((err && err.message) || err);
     return false;

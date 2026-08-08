@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ojwin-crm-v12';
+const CACHE_NAME = 'ojwin-crm-v13';
 const ASSETS = ['./index.html', './manifest.json', './icon-192.png', './icon-512.png', './cloud.js'];
 
 self.addEventListener('install', (event) => {
@@ -18,6 +18,7 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  if (new URL(event.request.url).origin !== self.location.origin) { return; }
   event.respondWith(
     caches.match(event.request).then((cached) => cached || fetch(event.request))
   );
