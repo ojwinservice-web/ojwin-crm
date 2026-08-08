@@ -256,16 +256,8 @@ function exportToExcel() {
   URL.revokeObjectURL(url);
 }
 
-// ============ Dark Mode ============
-function toggleDarkMode() {
-  darkMode = !darkMode;
-  document.body.classList.toggle('dark-mode', darkMode);
-  localStorage.setItem('darkMode', darkMode);
-}
 
 function initDarkMode() {
-  darkMode = localStorage.getItem('darkMode') === 'true';
-  document.body.classList.toggle('dark-mode', darkMode);
 }
 
 // ============ Enhanced Validation ============
@@ -383,7 +375,7 @@ function changePage(page) {
 
 // ============ Init Cloud ============
 async function initCloud() {
-  initDarkMode();
+  
   
   // Add sync indicator
   if (!document.getElementById('sync-indicator')) {
@@ -401,14 +393,6 @@ async function initCloud() {
   setInterval(syncFromFirestore, 5 * 60 * 1000);
 }
 
-// ============ Dark Mode Toggle ============
-window.addEventListener('load', function(){
-  var btn = document.createElement('button');
-  btn.innerHTML = '🌙';
-  btn.style.cssText = 'position:fixed;bottom:80px;left:12px;z-index:9999;width:44px;height:44px;border-radius:50%;border:none;background:#334155;color:white;font-size:20px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.4);';
-  btn.onclick = toggleDarkMode;
-  document.body.appendChild(btn);
-});
 
 // ============ One-time migration of local customers to Firestore ============
 function fieldsFor(c){
