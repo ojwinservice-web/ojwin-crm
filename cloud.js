@@ -32,7 +32,8 @@ const REVERSE_STATUS_MAP = {
 // ============ API Helpers ============
 async function firestoreRequest(path, method = 'GET', body = null) {
   const url = `${FIRESTORE_BASE}/${path}?key=${FIREBASE_API_KEY}`;
-  const options = { method, headers: { 'Content-Type': 'application/json' } };
+  const options = { method };
+  if (body) options.headers = { 'Content-Type': 'application/json' };
   if (body) options.body = JSON.stringify(body);
   
   try {
@@ -104,6 +105,7 @@ async function syncFromFirestore() {
     syncStatus = 'error';
     updateSyncIndicator();
     console.error('Sync from Firestore failed:', err);
+    window.__syncErr = String((err && err.message) || err);
     return false;
   }
 }
@@ -164,7 +166,7 @@ function updateSyncIndicator() {
     indicator.innerHTML = `✅ همگام‌سازی شد ${timeStr}`;
     indicator.className = 'sync-indicator synced';
   } else if (syncStatus === 'error') {
-    indicator.innerHTML = '⚠️ خطا در همگام‌سازی';
+    indicator.innerHTML = '⚠️ خطا: ' + (window.__syncErr || 'نامشخص');
     indicator.className = 'sync-indicator error';
   } else {
     indicator.innerHTML = '';
