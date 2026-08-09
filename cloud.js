@@ -56,7 +56,15 @@ async function syncFromFirestore() {
   
   try {
     // Sync customers
-    const leadsResponse = await firestoreRequest('leads');
+    let leadsResponse = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try { leadsResponse = await firestoreRequest('leads'); break; }
+      catch (e) {
+        window.__syncErr = String((e && e.message) || e);
+        if (attempt === 2) throw e;
+        await new Promise(r => setTimeout(r, 1500));
+      }
+    }
     const leads = leadsResponse.documents || [];
     
     const firestoreCustomers = leads.map(doc => {
@@ -114,32 +122,27 @@ async function syncFromFirestore() {
 
 async function syncToFirestore(customer) {
   try {
-    const firestoreData = {
-      fields: {
-        name: { stringValue: customer.name || '' },
-        phone: { stringValue: customer.phone || '' },
-        service: { stringValue: customer.service || '' },
-        address: { stringValue: customer.address || '' },
-        description: { stringValue: customer.description || '' },
-        status: { stringValue: REVERSE_STATUS_MAP[customer.status] || 'Cold' },
-        source: { stringValue: customer.source || 'PWA' },
-        nextFollowup: { stringValue: customer.nextFollowup || '' },
-        notes: { stringValue: customer.notes || '' }
-      }
-    };
-    
-    const path = `leads/${customer.id}`;
-    await firestoreRequest(path, 'PATCH', {
-      ...firestoreData,
-      updateMask: {
-        fieldPaths: ['name', 'phone', 'service', 'address', 'description', 'status', 'source', 'nextFollowup', 'notes']
-      }
+    const body = fieldsFor(customer);
+    const masks = ['name','phone','service','address','description','status','source','nextFollowup','notes']
+      .map(function(f){ return 'updateMask.fieldPaths=' + f; }).join('&');
+    const ct = { 'Content-Type': 'application/json' };
+    let res = await fetch(FIRESTORE_BASE + '/leads/' + encodeURIComponent(customer.id) + '?key=' + FIREBASE_API_KEY + '&' + masks, {
+      method: 'PATCH', headers: ct, body: JSON.stringify(body)
     });
-    
+    if (res.status === 404) {
+      res = await fetch(FIRESTORE_BASE + '/leads?key=' + FIREBASE_API_KEY + '&documentId=' + encodeURIComponent(customer.id), {
+        method: 'POST', headers: ct, body: JSON.stringify(body)
+      });
+    }
+    if (!res.ok) {
+      const t = await res.text();
+      throw new Error('HTTP ' + res.status + ' ' + t.slice(0, 80));
+    }
     return true;
   } catch (err) {
     console.error('Sync to Firestore failed:', err);
-    alert('خطا در ذخیره به سرور. تغییرات فقط محلی ذخیره شد.');
+    window.__syncErr = String((err && err.message) || err);
+    alert('خطا در ذخیره به سرور. تغییرات فقط محلی ذخیره شد. | ' + window.__syncErr);
     return false;
   }
 }

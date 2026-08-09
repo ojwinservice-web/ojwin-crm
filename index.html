@@ -683,7 +683,10 @@ function openCustomerForm(id){
     </div>
   `);
   
-  document.getElementById('saveCust').addEventListener('click', async () => {
+  document.getElementById('saveCust').addEventListener('click', async (ev) => {
+    if (ev.target.disabled) return;
+    ev.target.disabled = true;
+    ev.target.textContent = 'در حال ذخیره...';
     const customer = {
       id: c ? c.id : uid(),
       name: document.getElementById('f_name').value.trim(),
@@ -702,6 +705,9 @@ function openCustomerForm(id){
     if(success){
       closeSheet();
       render();
+    } else {
+      ev.target.disabled = false;
+      ev.target.textContent = 'تلاش دوباره';
     }
   });
   
