@@ -69,6 +69,7 @@ async function syncFromFirestore() {
     
     const firestoreCustomers = leads.map(doc => {
       const fields = doc.fields || {};
+      if (fields.deleted && fields.deleted.booleanValue === true) return null;
       const id = doc.name.split('/').pop();
       
       return {
@@ -149,8 +150,12 @@ async function syncToFirestore(customer) {
 
 async function deleteFromFirestore(customerId) {
   try {
-    const path = `leads/${customerId}`;
-    await firestoreRequest(path, 'DELETE');
+    const body = { fields: { deleted: { booleanValue: true } } };
+    const ct = { 'Content-Type': 'application/json' };
+    const res = await fetch(FIRESTORE_BASE + '/leads/' + encodeURIComponent(customerId) + '?key=' + FIREBASE_API_KEY + '&updateMask.fieldPaths=deleted', {
+      method: 'PATCH', headers: ct, body: JSON.stringify(body)
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
     return true;
   } catch (err) {
     console.error('Delete from Firestore failed:', err);
