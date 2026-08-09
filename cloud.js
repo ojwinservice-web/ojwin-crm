@@ -1,7 +1,7 @@
 // ============ Cloud Sync & Enhancements ============
 const FIREBASE_API_KEY = 'AIzaSyC6BpyH6C9VXpEAknUriR6yo9Z0BNeOuRQ';
 const FIREBASE_PROJECT = 'ojwin-crm';
-const FIRESTORE_BASE = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT}/databases/(default)/documents`;
+const FIRESTORE_BASE = `https://ojwin-proxy.ojwinservice.workers.dev/v1/projects/${FIREBASE_PROJECT}/databases/(default)/documents`;
 
 // State
 let syncStatus = 'idle'; // idle, loading, synced, error
