@@ -91,7 +91,7 @@ async function syncFromFirestore() {
     const localIds = new Set(data.customers.map(c => c.id));
     const mergedCustomers = [...data.customers];
     
-    firestoreCustomers.forEach(fc => {
+    firestoreCustomers.filter(function(x){ return x; }).forEach(fc => {
       const existingIndex = mergedCustomers.findIndex(c => c.id === fc.id);
       if (existingIndex >= 0) {
         // Update existing
